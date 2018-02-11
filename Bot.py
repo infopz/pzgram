@@ -58,12 +58,13 @@ class Bot:
     def run_update(self, update):
         # If the update contains a Message
         if "message" in update:
-            message = Message(update["message"])
+            message = Message(self.key, update["message"])
             chat = message.chat
             possibile_args = {"message": message, "chat": chat, "bot": self}
             # Call processAll function passing all the possible args
             # If Function return something, stop running this update
-            if call(self.processAll, possibile_args): return
+            if call(self.processAll, possibile_args):
+                return
             if message.type == "command":
                 call(self.commands[message.command], possibile_args)
             else:  # For every message that is not a command
