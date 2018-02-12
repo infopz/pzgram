@@ -1,10 +1,17 @@
 import requests
 
+from .Exceptions import *
+
 
 def api_request(botkey, method, param=None):
-    data = requests.post("https://api.telegram.org/bot" + botkey + "/" + method, data=param)
+    try:
+        data = requests.post("https://api.telegram.org/bot" + botkey + "/" + method, data=param)
+    except KeyboardInterrupt:
+        raise
+    except:
+        raise RequestsError("Error with the request for the method " + method)
     data = data.json()
     if not data['ok']:
-        # TODO: Manage errors
-        pass
+        raise ApiError("Error returned from telegram: " + str(data["error_code"]) + " - " + data["description"])
     return data['result']
+    # TODO Manage Same Key

@@ -19,6 +19,11 @@ class Message:
         message_dict["sender"] = User(botkey, message_dict["from"])
         message_dict.pop("from")
         message_dict["chat"] = Chat(botkey, message_dict["chat"]["id"], message_dict["chat"])
+        # Check if text is command and create args
+        if message_dict["text"].startswith("/"):
+            message_dict["command"] = message_dict["text"].split()[0][1:]
+            message_dict["args"] = message_dict["text"].split()[1:]
+            self.type = "command"
         # Memorize all attributes
         for i in message_dict:
             setattr(self, i, message_dict[i])
@@ -54,4 +59,4 @@ class User:
             setattr(self, i, user_dict[i])
 
     def send(self, text, **kwargs):
-        Chat(self.botkey, self.id).send(text, **kwargs)
+        return Chat(self.botkey, self.id).send(text, **kwargs)

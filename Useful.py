@@ -1,4 +1,5 @@
 import inspect
+import time
 
 message_all_attributes = [
     "message_id", "from", "date", "chat",
@@ -43,9 +44,17 @@ def call(f, args):
     return f(*to_pass)
 
 
-def default_start(chat, bot):
+def default_start(chat, bot):  # TODO
     pass
 
 
-def default_help(chat, bot):
+def default_help(chat, bot):  # TODO
     pass
+
+
+def command_not_found(chat, message):
+    chat.send("/" + message.command + " not found\nUse /help to view all possible commands")
+
+
+def time_for_log():
+    return time.strftime("%d/%m %H:%M:%S - ")

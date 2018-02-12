@@ -1,9 +1,9 @@
 import threading
 
-from .Api import api_request
 from .Objects import *
 from .Useful import notafunction as nf
 from .Useful import *
+from .Exceptions import *
 
 
 class Bot:
@@ -17,23 +17,41 @@ class Bot:
         # Bot Functions
         self.processAll = nf
         self.processMessage = nf
+        self.startFunc = nf
+        self.endFunc = nf
         # Bot Settings
         self.acceptEdited = False
         self.acceptOlder = False
+        self.APITimeout = 100
         # Others
         self.timers = dict()
         self.commands = {"start": default_start, "help": default_help}
+        print(time_for_log() + "Bot Created")
 
     def run(self):
         # Check bot key and receive bot information
-        bot_data = api_request(self.key, 'getMe')
+        try:
+            bot_data = api_request(self.key, 'getMe')
+        except ApiError:
+            # If raise ApiError means that the token is not valid
+            print(time_for_log() + "ApiKey Error: Token not valid")
+            print(time_for_log() + "Shutdown...")
+            return
         self.id = bot_data["id"]
         self.username = bot_data["username"]
         self.name = bot_data["first_name"]
         if len(self.timers):
             # TODO: Start timers
             pass
-        self.run_bot()
+        # Call start function before starting the bot
+        call(self.startFunc, {"bot": self})
+        print(time_for_log() + "Bot Started")
+        try:
+            self.run_bot()
+        except KeyboardInterrupt:
+            print(time_for_log() + "Shutdown...")
+            call(self.endFunc, {"bot": self})
+
 
     def run_bot(self):
         while True:
@@ -42,11 +60,11 @@ class Bot:
                 # Create a thread for each update
                 threading.Thread(target=self.run_update, args=(i,), daemon=True).start()
 
-    def get_updates(self):
+    def get_updates(self):  # TODO: Insert try to avoid ApiErro block programs
         while True:
             param = {
                 "offset": self.offset,
-                "timeout": 10
+                "timeout": self.APITimeout
             }
             updates = api_request(self.key, "getUpdates", param)
             # If the returned array contains at least 1 update
@@ -66,7 +84,12 @@ class Bot:
             if call(self.processAll, possibile_args):
                 return
             if message.type == "command":
-                call(self.commands[message.command], possibile_args)
+                try:
+                    call(self.commands[message.command], possibile_args)
+                except KeyError:
+                    # If command is not in list, send message with /help
+                    call(command_not_found, possibile_args)
+                    return
             else:  # For every message that is not a command
                 call(self.processMessage, possibile_args)
 
