@@ -16,12 +16,15 @@ class Message:
             if i not in message_dict:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
-        message_dict["sender"] = User(message_dict["from"])
+        message_dict["sender"] = User(botkey, message_dict["from"])
         message_dict.pop("from")
         message_dict["chat"] = Chat(botkey, message_dict["chat"]["id"], message_dict["chat"])
         # Memorize all attributes
         for i in message_dict:
             setattr(self, i, message_dict[i])
+
+    def reply(self, text, **kwargs):
+        return self.chat.send(text, reply_to=self.message_id, **kwargs)
 
 
 class Chat:
@@ -36,7 +39,7 @@ class Chat:
             "chat_id": self.id,
             "text": text,
             "parse_mode": parse_mode,
-            "disable_web_page_preview": preview,
+            "disable_web_page_preview": not preview,
             "disable_notification": notification,
             "reply_to_message_id": reply_to,
             "reply_markup": reply_markup
@@ -45,7 +48,10 @@ class Chat:
 
 
 class User:
-    # TODO: Methods send
-    def __init__(self, user_dict):
+    def __init__(self, botkey, user_dict):
+        self.botkey = botkey
         for i in user_dict:
             setattr(self, i, user_dict[i])
+
+    def send(self, text, **kwargs):
+        Chat(self.botkey, self.id).send(text, **kwargs)
