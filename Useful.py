@@ -44,12 +44,23 @@ def call(f, args):
     return f(*to_pass)
 
 
-def default_start(chat, bot):  # TODO
-    pass
+def default_start(chat, message, bot):
+    chat.send("Hi *" + message.sender.first_name + "*, Welcome on @" + bot.username + "\nUse /help to view all commands")
 
 
-def default_help(chat, bot):  # TODO
-    pass
+def default_help(chat, bot):
+    text = ""
+    for i in bot.commands:
+        if i != "help" and i != "start":
+            docstring = bot.commands[i].__doc__
+            if docstring is None:
+                text += "  /" + i + "\n"
+            else:
+                text += "  /" + i + " - " + docstring + "\n"
+    if text == "":
+        chat.send("There is no command connected to this bot")
+    else:
+        chat.send("These are the possible commands\n" + text)
 
 
 def command_not_found(chat, message):
