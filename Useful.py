@@ -31,10 +31,12 @@ user_all_attirbutes = [
 
 
 def notafunction():
+    """Default functions for some parts of bot"""
     pass
 
 
 def call(f, args):
+    """Function that call a function passing him the requested args"""
     # Get Function Args
     f_args = inspect.getfullargspec(f).args
     to_pass = []
@@ -45,10 +47,12 @@ def call(f, args):
 
 
 def default_start(chat, message, bot):
+    """Default function for /start command"""
     chat.send("Hi *" + message.sender.first_name + "*, Welcome on @" + bot.username + "\nUse /help to view all commands")
 
 
 def default_help(chat, bot):
+    """Default funcion for /help command"""
     text = ""
     for i in bot.commands:
         if i != "help" and i != "start":
@@ -64,8 +68,18 @@ def default_help(chat, bot):
 
 
 def command_not_found(chat, message):
+    """Send an error message if user ask a command that not exists"""
     chat.send("/" + message.command + " not found\nUse /help to view all possible commands")
 
 
 def time_for_log():
+    """Function that print the current time for bot prints"""
     return time.strftime("%d/%m %H:%M:%S - ")
+
+
+def calc_new_delay(delay):
+    """Calc the dalay of timer based on what time is it"""
+    seconds_today = (time.localtime().tm_hour * 3600) + (time.localtime().tm_min * 60) + time.localtime().tm_sec
+    passed_from_last = seconds_today % delay
+    new_delay = delay - passed_from_last
+    return new_delay

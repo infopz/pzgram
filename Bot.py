@@ -1,4 +1,5 @@
 import threading
+import traceback
 
 from .Objects import *
 from .Useful import notafunction as nf
@@ -34,15 +35,16 @@ class Bot:
             bot_data = api_request(self.key, 'getMe')
         except ApiError:
             # If raise ApiError means that the token is not valid
-            print(time_for_log() + "ApiKey Error: Token not valid")
+            print(time_for_log() + "ApiKey Error: Token is not valid")
             print(time_for_log() + "Shutdown...")
             return
         self.id = bot_data["id"]
         self.username = bot_data["username"]
         self.name = bot_data["first_name"]
         if len(self.timers):
-            # TODO: Start timers
-            pass
+            # For each timer create a different thread
+            for t in self.timers:
+                threading.Thread(target=self.run_timer, args=(self.timers[t], t), daemon=True).start()
         # Call start function before starting the bot
         call(self.startFunc, {"bot": self})
         print(time_for_log() + "Bot Started")
@@ -52,7 +54,6 @@ class Bot:
             print(time_for_log() + "Shutdown...")
             call(self.endFunc, {"bot": self})
 
-
     def run_bot(self):
         while True:
             updates = self.get_updates()
@@ -60,13 +61,21 @@ class Bot:
                 # Create a thread for each update
                 threading.Thread(target=self.run_update, args=(i,), daemon=True).start()
 
-    def get_updates(self):  # TODO: Insert try to avoid ApiErro block programs
+    def get_updates(self):
         while True:
             param = {
                 "offset": self.offset,
                 "timeout": self.APITimeout
             }
-            updates = api_request(self.key, "getUpdates", param)
+            # Create a local timeout, just in case of breaking connection
+            local_timeout = self.APITimeout + 2
+            try:
+                updates = api_request(self.key, "getUpdates", param, local_timeout)
+            except RequestsError:
+                # If connection error, retry in 5 seconds
+                print(time_for_log() + "ConnectionError: can't reach Telegram servers. Retry in 5s")
+                time.sleep(5)
+                continue
             # If the returned array contains at least 1 update
             if len(updates):
                 # Increase the offset
@@ -97,3 +106,8 @@ class Bot:
         # Used to avoid overwring of default start and help if not included
         for i in command_dict:
             self.commands[i] = command_dict[i]
+
+    def run_timer(self, timer_function, delay):
+        while True:
+            timer_function()  # TODO: Manage Exception
+            time.sleep(calc_new_delay(delay))

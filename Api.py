@@ -3,9 +3,9 @@ import requests
 from .Exceptions import *
 
 
-def api_request(botkey, method, param=None):
+def api_request(botkey, method, param=None, timeout=None):
     try:
-        data = requests.post("https://api.telegram.org/bot" + botkey + "/" + method, data=param)
+        data = requests.post("https://api.telegram.org/bot" + botkey + "/" + method, data=param, timeout=timeout)
     except KeyboardInterrupt:
         raise
     except:
