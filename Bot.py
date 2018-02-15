@@ -32,7 +32,7 @@ class Bot:
     def run(self):
         # Check bot key and receive bot information
         try:
-            bot_data = api_request(self.key, 'getMe')
+            bot_data = api_request(self, 'getMe')
         except ApiError:
             # If raise ApiError means that the token is not valid
             print(time_for_log() + "ApiKey Error: Token is not valid")
@@ -41,12 +41,12 @@ class Bot:
         self.id = bot_data["id"]
         self.username = bot_data["username"]
         self.name = bot_data["first_name"]
+        # Call start function before starting the bot
+        call(self.startFunc, {"bot": self})
         if len(self.timers):
             # For each timer create a different thread
             for t in self.timers:
                 threading.Thread(target=self.run_timer, args=(self.timers[t], t), daemon=True).start()
-        # Call start function before starting the bot
-        call(self.startFunc, {"bot": self})
         print(time_for_log() + "Bot Started")
         try:
             self.run_bot()
@@ -70,12 +70,16 @@ class Bot:
             # Create a local timeout, just in case of breaking connection
             local_timeout = self.APITimeout + 2
             try:
-                updates = api_request(self.key, "getUpdates", param, local_timeout)
-            except RequestsError:
+                updates = api_request(self, "getUpdates", param, local_timeout)
+            except TelegramConnectionError:
                 # If connection error, retry in 5 seconds
                 print(time_for_log() + "ConnectionError: can't reach Telegram servers. Retry in 5s")
                 time.sleep(5)
                 continue
+            except ApiError:
+                # Api Error if another client is getting update
+                print(time_for_log() + "ApiError - Another program is getting updates for this bot. Retry in 5s")
+                time.sleep()
             # If the returned array contains at least 1 update
             if len(updates):
                 # Increase the offset
@@ -85,7 +89,7 @@ class Bot:
     def run_update(self, update):
         # If the update contains a Message
         if "message" in update:
-            message = Message(self.key, update["message"])
+            message = Message(self, update["message"])
             chat = message.chat
             possibile_args = {"message": message, "chat": chat, "bot": self}
             # Call processAll function passing all the possible args
@@ -109,5 +113,9 @@ class Bot:
 
     def run_timer(self, timer_function, delay):
         while True:
-            timer_function()  # TODO: Manage Exception
+            try:
+                timer_function()
+            except:
+                print("")
+                traceback.print_exc()
             time.sleep(calc_new_delay(delay))

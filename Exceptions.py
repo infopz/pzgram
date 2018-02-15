@@ -3,5 +3,5 @@ class ApiError(Exception):
     pass
 
 
-class RequestsError(Exception):
+class TelegramConnectionError(Exception):
     pass

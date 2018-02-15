@@ -4,8 +4,8 @@ from .Api import api_request
 
 
 class Message:
-    def __init__(self, botkey, message_dict):
-        self.botkey = botkey
+    def __init__(self, bot, message_dict):
+        self.bot = bot
         # Find the type of this message
         for t in types:
             if t in message_dict:
@@ -16,9 +16,9 @@ class Message:
             if i not in message_dict:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
-        message_dict["sender"] = User(botkey, message_dict["from"])
+        message_dict["sender"] = User(bot, message_dict["from"])
         message_dict.pop("from")
-        message_dict["chat"] = Chat(botkey, message_dict["chat"]["id"], message_dict["chat"])
+        message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
         # Check if text is command and create args
         if message_dict["text"].startswith("/"):
             message_dict["command"] = message_dict["text"].split()[0][1:]
@@ -33,8 +33,8 @@ class Message:
 
 
 class Chat:
-    def __init__(self, botkey, id, chat_dict=dict()):
-        self.botkey = botkey
+    def __init__(self, bot, id, chat_dict=dict()):
+        self.bot = bot
         self.id = id
         for i in chat_dict:
             setattr(self, i, chat_dict[i])
@@ -49,14 +49,14 @@ class Chat:
             "reply_to_message_id": reply_to,
             "reply_markup": reply_markup
         }
-        return Message(self.botkey, api_request(self.botkey, "sendMessage", param))
+        return Message(self.bot, api_request(self.bot, "sendMessage", param))
 
 
 class User:
-    def __init__(self, botkey, user_dict):
-        self.botkey = botkey
+    def __init__(self, bot, user_dict):
+        self.botkey = bot
         for i in user_dict:
             setattr(self, i, user_dict[i])
 
     def send(self, text, **kwargs):
-        return Chat(self.botkey, self.id).send(text, **kwargs)
+        return Chat(self.bot, self.id).send(text, **kwargs)
