@@ -15,3 +15,9 @@ def api_request(bot, method, param=None, files=None, timeout=None):
     if not data['ok']:
         raise ApiError("Error returned from telegram: " + str(data["error_code"]) + " - " + data["description"])
     return data['result']
+
+
+def download_file(bot, telegram_path, save_path):
+    url = "https://api.telegram.org/file/bot" + bot.key + "/" + telegram_path
+    r = requests.get(url, allow_redirects=True)
+    open(save_path, "wb").write(r.content)

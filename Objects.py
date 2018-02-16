@@ -2,7 +2,7 @@ import os
 
 from .Useful import message_types as types
 from .Useful import message_all_attributes as message_all
-from .Api import api_request
+from .Api import *
 
 
 class Message:
@@ -18,11 +18,18 @@ class Message:
             if i not in message_dict:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
+        # FIXME: Check if this work with Channels or Groups
         message_dict["sender"] = User(bot, message_dict["from"])
         message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
-        # Check if text is command and create args
-        if message_dict["text"].startswith("/"):
+        # Parse Photo if exists
+        if message_dict["photo"] is not None:
+            photo_array = []
+            for p in message_dict["photo"]:
+                photo_array.append(Photo(bot, p))
+            message_dict["photo"] = photo_array
+        # Check if text  is command and create args
+        if message_dict["text"] is not None and message_dict["text"].startswith("/"):
             message_dict["command"] = message_dict["text"].split()[0][1:]
             message_dict["args"] = message_dict["text"].split()[1:]
             self.type = "command"
@@ -74,7 +81,7 @@ class Chat:
             "reply_to_message_id": reply_id,
             "reply_markup": reply_markup
         }
-        return api_request(self.bot, "sendPhoto", param, file)
+        return Message(self.bot, api_request(self.bot, "sendPhoto", param, file))
 
 
 class User:
@@ -88,3 +95,19 @@ class User:
 
     def send_photo(self, photopath, **kwargs):
         return Chat(self.bot, self.id).send_photo(photopath, **kwargs)
+
+
+class Photo:
+    def __init__(self, bot, photo_dict):
+        self.bot = bot
+        for i in photo_dict:
+            setattr(self, i, photo_dict[i])
+
+    def save(self, path):
+        if hasattr(self, "file_path"):
+            # Thumbnail altredy have the file_path attribute, so just download it
+            download_file(self.bot, self.file_path, path)
+        else:
+            # "Normal photos" dont have file_path, so i retrive it with getFile method
+            file = api_request(self.bot, "getFile", {"file_id": self.file_id})
+            download_file(self.bot, file["file_path"], path)
