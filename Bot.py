@@ -27,6 +27,7 @@ class Bot:
         # Others
         self.timers = dict()
         self.commands = {"start": default_start, "help": default_help}
+        self.next_func = dict()
         print(time_for_log() + "Bot Created")
 
     def run(self):
@@ -79,7 +80,8 @@ class Bot:
             except ApiError:
                 # Api Error if another client is getting update
                 print(time_for_log() + "ApiError - Another program is getting updates for this bot. Retry in 5s")
-                time.sleep()
+                time.sleep(5)
+                continue
             # If the returned array contains at least 1 update
             if len(updates):
                 # Increase the offset
@@ -103,6 +105,10 @@ class Bot:
                     # If command is not in list, send message with /help
                     call(command_not_found, possibile_args)
                     return
+            elif chat.id in self.next_func:
+                # Call next func if it setted for that chat.id
+                func = self.next_func.pop(chat.id)
+                call(func, possibile_args)
             else:  # For every message that is not a command
                 call(self.processMessage, possibile_args)
 
@@ -119,3 +125,6 @@ class Bot:
                 print("")
                 traceback.print_exc()
             time.sleep(calc_new_delay(delay))
+
+    def set_next(self, chat, func):
+        self.next_func[chat.id] = func

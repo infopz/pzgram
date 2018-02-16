@@ -51,6 +51,10 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendMessage", param))
 
+    def send_action(self, action):
+        param = {"chat_id": self.id, "action": action}
+        print(api_request(self.bot, "sendChatAction", param))
+
 
 class User:
     def __init__(self, bot, user_dict):

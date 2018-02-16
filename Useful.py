@@ -1,5 +1,6 @@
 import inspect
 import time
+import json
 
 message_all_attributes = [
     "message_id", "from", "date", "chat",
@@ -83,3 +84,9 @@ def calc_new_delay(delay):
     passed_from_last = seconds_today % delay
     new_delay = delay - passed_from_last
     return new_delay
+
+
+def create_keyboard(keyboard_array, resize=True, one_time=False):
+    keyboard = {"keyboard": keyboard_array, "resize_keyboard": resize, "one_time_keyboard": one_time}
+    keyboard = json.dumps(keyboard)
+    return keyboard

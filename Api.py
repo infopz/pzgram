@@ -14,4 +14,3 @@ def api_request(bot, method, param=None, timeout=None):
     if not data['ok']:
         raise ApiError("Error returned from telegram: " + str(data["error_code"]) + " - " + data["description"])
     return data['result']
-    # TODO Manage Same Key
