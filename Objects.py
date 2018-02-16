@@ -1,3 +1,5 @@
+import os
+
 from .Useful import message_types as types
 from .Useful import message_all_attributes as message_all
 from .Api import api_request
@@ -31,6 +33,9 @@ class Message:
     def reply(self, text, **kwargs):
         return self.chat.send(text, reply_to=self.message_id, **kwargs)
 
+    def reply_photo(self, photopath, **kwargs):
+        return self.chat.send_photo(photopath, reply_id=self.message_id, **kwargs)
+
 
 class Chat:
     def __init__(self, bot, id, chat_dict=dict()):
@@ -53,14 +58,33 @@ class Chat:
 
     def send_action(self, action):
         param = {"chat_id": self.id, "action": action}
-        print(api_request(self.bot, "sendChatAction", param))
+        return api_request(self.bot, "sendChatAction", param)
+
+    def send_photo(self, photopath, caption=None, parse_mode=None, notification=True, reply_id=None, reply_markup=None):
+        if not os.path.isfile(photopath):
+            raise FileNotFoundError("File " + photopath + " not exists or is a folder")
+        file = {
+            "photo": (photopath, open(photopath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "caption": caption,
+            "parse_mode": parse_mode,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return api_request(self.bot, "sendPhoto", param, file)
 
 
 class User:
     def __init__(self, bot, user_dict):
-        self.botkey = bot
+        self.bot = bot
         for i in user_dict:
             setattr(self, i, user_dict[i])
 
     def send(self, text, **kwargs):
         return Chat(self.bot, self.id).send(text, **kwargs)
+
+    def send_photo(self, photopath, **kwargs):
+        return Chat(self.bot, self.id).send_photo(photopath, **kwargs)

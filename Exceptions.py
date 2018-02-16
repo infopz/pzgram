@@ -5,3 +5,7 @@ class ApiError(Exception):
 
 class TelegramConnectionError(Exception):
     pass
+
+
+class FileNotFoundError(Exception):
+    pass

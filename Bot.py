@@ -71,7 +71,7 @@ class Bot:
             # Create a local timeout, just in case of breaking connection
             local_timeout = self.APITimeout + 2
             try:
-                updates = api_request(self, "getUpdates", param, local_timeout)
+                updates = api_request(self, "getUpdates", param, timeout=local_timeout)
             except TelegramConnectionError:
                 # If connection error, retry in 5 seconds
                 print(time_for_log() + "ConnectionError: can't reach Telegram servers. Retry in 5s")
