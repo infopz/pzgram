@@ -90,3 +90,13 @@ def create_keyboard(keyboard_array, resize=True, one_time=False):
     keyboard = {"keyboard": keyboard_array, "resize_keyboard": resize, "one_time_keyboard": one_time}
     keyboard = json.dumps(keyboard)
     return keyboard
+
+
+def file_name(path):
+    """From path of a file, find the name of that file"""
+    # Scroll back path string until he find / or \
+    for i in range(len(path)-1, 0, -1):
+        if path[i] == "/" or path[i] == "\\":
+            return path[i+1:]
+    else:
+        return path

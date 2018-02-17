@@ -2,6 +2,7 @@ import os
 
 from .Useful import message_types as types
 from .Useful import message_all_attributes as message_all
+from .Useful import file_name
 from .Api import *
 
 
@@ -68,10 +69,13 @@ class Chat:
         return api_request(self.bot, "sendChatAction", param)
 
     def send_photo(self, photopath, caption=None, parse_mode=None, notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
         if not os.path.isfile(photopath):
             raise FileNotFoundError("File " + photopath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(photopath)
         file = {
-            "photo": (photopath, open(photopath, "rb"))
+            "photo": (name, open(photopath, "rb"))
         }
         param = {
             "chat_id": self.id,
