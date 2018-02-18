@@ -5,6 +5,8 @@ from .Useful import message_all_attributes as message_all
 from .Useful import file_name
 from .Api import *
 
+from .MediaObjects import *
+
 
 class Message:
     def __init__(self, bot, message_dict):
@@ -24,11 +26,14 @@ class Message:
         message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
         # Parse Photo if exists
-        if message_dict["photo"] is not None:
+        if self.type == "photo":
             photo_array = []
             for p in message_dict["photo"]:
                 photo_array.append(Photo(bot, p))
             message_dict["photo"] = photo_array
+        # Parse Voice
+        if self.type == "voice":
+            message_dict["voice"] = Voice(self.bot, message_dict["voice"])
         # Check if text  is command and create args
         if message_dict["text"] is not None and message_dict["text"].startswith("/"):
             message_dict["command"] = message_dict["text"].split()[0][1:]
@@ -43,6 +48,9 @@ class Message:
 
     def reply_photo(self, photopath, **kwargs):
         return self.chat.send_photo(photopath, reply_id=self.message_id, **kwargs)
+
+    def reply_voice(self, voicepath, **kwargs):
+        return self.chat.send_voice(voicepath, reply_id=self.message_id, **kwargs)
 
 
 class Chat:
@@ -87,6 +95,27 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendPhoto", param, file))
 
+    def send_voice(self, voicepath, duration=None, caption=None, parse_mode=None,
+                   notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
+        if not os.path.isfile(voicepath):
+            raise FileNotFoundError("File " + voicepath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(voicepath)
+        file = {
+            "voice": (name, open(voicepath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "duration": duration,
+            "caption": caption,
+            "parse_mode": parse_mode,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendVoice", param, file))
+
 
 class User:
     def __init__(self, bot, user_dict):
@@ -100,18 +129,5 @@ class User:
     def send_photo(self, photopath, **kwargs):
         return Chat(self.bot, self.id).send_photo(photopath, **kwargs)
 
-
-class Photo:
-    def __init__(self, bot, photo_dict):
-        self.bot = bot
-        for i in photo_dict:
-            setattr(self, i, photo_dict[i])
-
-    def save(self, path):
-        if hasattr(self, "file_path"):
-            # Thumbnail altredy have the file_path attribute, so just download it
-            download_file(self.bot, self.file_path, path)
-        else:
-            # "Normal photos" dont have file_path, so i retrive it with getFile method
-            file = api_request(self.bot, "getFile", {"file_id": self.file_id})
-            download_file(self.bot, file["file_path"], path)
+    def send_voice(self, voicepath, **kwargs):
+        return Chat(self.bot, self.id).send_voice(voicepath, **kwargs)
