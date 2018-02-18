@@ -18,8 +18,15 @@ class GenericMedia:
 
 
 class Photo(GenericMedia):
+    """Exstension .jpg .png"""
     pass
 
 
 class Voice(GenericMedia):
+    """Exstension .ogg"""
+    pass
+
+
+class Audio(GenericMedia):
+    """Estenzion .mpeg .mp3"""
     pass

@@ -32,10 +32,13 @@ class Message:
                 photo_array.append(Photo(bot, p))
             message_dict["photo"] = photo_array
         # Parse Voice
-        if self.type == "voice":
+        elif self.type == "voice":
             message_dict["voice"] = Voice(self.bot, message_dict["voice"])
-        # Check if text  is command and create args
-        if message_dict["text"] is not None and message_dict["text"].startswith("/"):
+        # Parse Audio
+        elif self.type == "audio":
+            message_dict["audio"] = Audio(self.bot, message_dict["audio"])
+        # Check if text is command and create args
+        elif self.type == "text" and message_dict["text"].startswith("/"):
             message_dict["command"] = message_dict["text"].split()[0][1:]
             message_dict["args"] = message_dict["text"].split()[1:]
             self.type = "command"
@@ -115,6 +118,29 @@ class Chat:
             "reply_markup": reply_markup
         }
         return Message(self.bot, api_request(self.bot, "sendVoice", param, file))
+
+    def send_audio(self, audiopath, duration=None, performer=None, title=None, caption=None, parse_mode=None,
+                   notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
+        if not os.path.isfile(audiopath):
+            raise FileNotFoundError("File " + audiopath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(audiopath)
+        file = {
+            "audio": (name, open(audiopath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "duration": duration,
+            "performer": performer,
+            "title": title,
+            "caption": caption,
+            "parse_mode": parse_mode,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendAudio", param, file))
 
 
 class User:
