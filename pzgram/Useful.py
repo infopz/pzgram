@@ -13,14 +13,6 @@ message_all_attributes = [
     "migrate_to_chat_id", "pinned_message"
 ]  # TODO: paymets
 
-message_types = [
-    "text", "audio", "document", "game", "photo", "sticker", "video",
-    "voice", "video_note", "caption", "contact", "location", "venue",
-    "new_chat_members", "left_chat_member", "new_chat_title", "new_chat_photo", "delete_chat_photo",
-    "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_to_chat_id",
-    "migrate_to_chat_id", "pinned_message"
-]
-
 chat_all_attributes = [
     "id", "type", "title", "username", "first_name", "last_name", "all_members_are_administrator",
     "photo", "description", "invite_link", "pinned_message", "sticker_set_name", "can_set_sticker_set"

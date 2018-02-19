@@ -1,6 +1,6 @@
 import os
 
-from .Useful import message_types as types
+from .Parsing import message_types
 from .Useful import message_all_attributes as message_all
 from .Useful import file_name
 from .Api import *
@@ -12,9 +12,17 @@ class Message:
     def __init__(self, bot, message_dict):
         self.bot = bot
         # Find the type of this message
-        for t in types:
+        for t in message_types:
             if t in message_dict:
                 self.type = t
+                # Call the connected method for parsing that type of message
+                res = message_types[t](message_dict, bot)
+                # Check if return 1 or 2 values (First is the dict, Second is the new type)
+                if isinstance(res, tuple):
+                    message_dict = res[0]
+                    self.type = res[1]
+                else:
+                    message_dict = res
                 break
         # Add all possbile attributes to message_dict and set to None
         for i in message_all:
@@ -25,23 +33,6 @@ class Message:
         message_dict["sender"] = User(bot, message_dict["from"])
         message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
-        # Parse Photo if exists
-        if self.type == "photo":
-            photo_array = []
-            for p in message_dict["photo"]:
-                photo_array.append(Photo(bot, p))
-            message_dict["photo"] = photo_array
-        # Parse Voice
-        elif self.type == "voice":
-            message_dict["voice"] = Voice(self.bot, message_dict["voice"])
-        # Parse Audio
-        elif self.type == "audio":
-            message_dict["audio"] = Audio(self.bot, message_dict["audio"])
-        # Check if text is command and create args
-        elif self.type == "text" and message_dict["text"].startswith("/"):
-            message_dict["command"] = message_dict["text"].split()[0][1:]
-            message_dict["args"] = message_dict["text"].split()[1:]
-            self.type = "command"
         # Memorize all attributes
         for i in message_dict:
             setattr(self, i, message_dict[i])
