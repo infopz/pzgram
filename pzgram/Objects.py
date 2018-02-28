@@ -37,6 +37,15 @@ class Message:
         for i in message_dict:
             setattr(self, i, message_dict[i])
 
+    def forward(self, chat_id, notification=True):
+        param = {
+            "chat_id": chat_id,
+            "from_chat_id": self.chat.id,
+            "message_id": self.message_id,
+            "disable_notification": not notification
+        }
+        return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
+
     def reply(self, text, **kwargs):
         return self.chat.send(text, reply_to=self.message_id, **kwargs)
 
@@ -51,6 +60,7 @@ class Message:
 
     def reply_document(self, documentpath, **kwargs):
         return self.chat.send_voice(documentpath, reply_id=self.message_id, **kwargs)
+
 
 class Chat:
     def __init__(self, bot, id, chat_dict=dict()):
@@ -70,6 +80,15 @@ class Chat:
             "reply_markup": reply_markup
         }
         return Message(self.bot, api_request(self.bot, "sendMessage", param))
+
+    def forward_message(self, chat_id, message_id, notification=True):
+        param = {
+            "chat_id": chat_id,
+            "from_chat_id": self.id,
+            "message_id": message_id,
+            "disable_notification": not notification
+        }
+        return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
 
     def send_action(self, action):
         param = {"chat_id": self.id, "action": action}
