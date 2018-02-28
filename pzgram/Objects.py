@@ -46,6 +46,11 @@ class Message:
     def reply_voice(self, voicepath, **kwargs):
         return self.chat.send_voice(voicepath, reply_id=self.message_id, **kwargs)
 
+    def reply_audio(self, audiopath, **kwargs):
+        return self.chat.send_voice(audiopath, reply_id=self.message_id, **kwargs)
+
+    def reply_document(self, documentpath, **kwargs):
+        return self.chat.send_voice(documentpath, reply_id=self.message_id, **kwargs)
 
 class Chat:
     def __init__(self, bot, id, chat_dict=dict()):
@@ -133,6 +138,26 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendAudio", param, file))
 
+    def send_document(self, documentpath, caption=None, parse_mode=None,
+                      notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
+        if not os.path.isfile(documentpath):
+            raise FileNotFoundError("File " + documentpath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(documentpath)
+        file = {
+            "document": (name, open(documentpath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "caption": caption,
+            "parse_mode": parse_mode,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendDocument", param, file))
+
 
 class User:
     def __init__(self, bot, user_dict):
@@ -148,3 +173,9 @@ class User:
 
     def send_voice(self, voicepath, **kwargs):
         return Chat(self.bot, self.id).send_voice(voicepath, **kwargs)
+
+    def send_audio(self, audiopath, **kwargs):
+        return Chat(self.bot, self.id).send_voice(audiopath, **kwargs)
+
+    def send_document(self, documentpath, **kwargs):
+        return Chat(self.bot, self.id).send_voice(documentpath, **kwargs)
