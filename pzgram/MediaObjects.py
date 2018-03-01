@@ -32,5 +32,18 @@ class Audio(GenericMedia):
     pass
 
 
+class Video(GenericMedia):
+    """Extension .mp4"""
+    def __init__(self, bot, dict):
+        GenericMedia.__init__(self, bot, dict)
+        # Parse thumb as Photo object if exists
+        if hasattr(self, "thumb"):
+            self.thumb = Photo(bot, self.thumb)
+
+
 class Document(GenericMedia):
-    pass
+    def __init__(self, bot, dict):
+        GenericMedia.__init__(self, bot, dict)
+        # Parse thumb as Photo object if exists
+        if hasattr(self, "thumb"):
+            self.thumb = Photo(bot, self.thumb)

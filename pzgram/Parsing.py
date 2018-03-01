@@ -33,6 +33,11 @@ def parse_document(message_dict, bot):
     return message_dict
 
 
+def parse_video(message_dict, bot):
+    message_dict["video"] = Video(bot, message_dict["video"])
+    return message_dict
+
+
 message_types = {
     "text": parse_text,
     "audio": parse_audio,
@@ -40,7 +45,7 @@ message_types = {
     "game": nf,
     "photo": parse_photo,
     "sticker": nf,
-    "video": nf,
+    "video": parse_video,
     "voice": parse_voice,
     "video_note": nf,
     "caption": nf,

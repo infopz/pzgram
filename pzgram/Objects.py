@@ -56,10 +56,13 @@ class Message:
         return self.chat.send_voice(voicepath, reply_id=self.message_id, **kwargs)
 
     def reply_audio(self, audiopath, **kwargs):
-        return self.chat.send_voice(audiopath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_audio(audiopath, reply_id=self.message_id, **kwargs)
 
     def reply_document(self, documentpath, **kwargs):
-        return self.chat.send_voice(documentpath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_document(documentpath, reply_id=self.message_id, **kwargs)
+
+    def reply_video(self, videopath, **kwargs):
+        return self.chat.send_video(videopath, reply_id=self.message_id, **kwargs)
 
 
 class Chat:
@@ -177,6 +180,30 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendDocument", param, file))
 
+    def send_video(self, videopath, duration=None, width=None, height=None, caption=None, parse_mode=None,
+                   support_streaming=None, notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
+        if not os.path.isfile(videopath):
+            raise FileNotFoundError("File " + videopath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(videopath)
+        file = {
+            "video": (name, open(videopath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "duration": duration,
+            "width": width,
+            "height": height,
+            "caption": caption,
+            "parse_mode": parse_mode,
+            "support_straming": support_streaming,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendVideo", param, file))
+
 
 class User:
     def __init__(self, bot, user_dict):
@@ -194,7 +221,10 @@ class User:
         return Chat(self.bot, self.id).send_voice(voicepath, **kwargs)
 
     def send_audio(self, audiopath, **kwargs):
-        return Chat(self.bot, self.id).send_voice(audiopath, **kwargs)
+        return Chat(self.bot, self.id).send_audio(audiopath, **kwargs)
 
     def send_document(self, documentpath, **kwargs):
-        return Chat(self.bot, self.id).send_voice(documentpath, **kwargs)
+        return Chat(self.bot, self.id).send_document(documentpath, **kwargs)
+
+    def send_video(self, videopath, **kwargs):
+        return Chat(self.bot, self.id).send_video(videopath, **kwargs)
