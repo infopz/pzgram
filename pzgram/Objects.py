@@ -1,9 +1,6 @@
-import os
-
 from .Parsing import message_types
 from .Useful import message_all_attributes as message_all
-from .Useful import file_name
-from .Api import *
+from .Useful import *
 
 from .MediaObjects import *
 
@@ -203,6 +200,20 @@ class Chat:
             "reply_markup": reply_markup
         }
         return Message(self.bot, api_request(self.bot, "sendVideo", param, file))
+
+    def send_contact(self, phone_number, first_name, last_name=None, user_id=None,
+                     notification=True, reply_id=None, reply_markup=None):
+        param = {
+            "chat_id": self.id,
+            "phone_number": phone_number,
+            "first_name": first_name,
+            "last_name": last_name,
+            "user_id": user_id,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendContact", param))
 
 
 class User:

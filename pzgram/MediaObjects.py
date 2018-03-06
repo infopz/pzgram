@@ -1,6 +1,6 @@
 from .Api import *
 
-
+# TODO: send
 class GenericMedia:
     def __init__(self, bot, dict):
         self.bot = bot
@@ -47,3 +47,10 @@ class Document(GenericMedia):
         # Parse thumb as Photo object if exists
         if hasattr(self, "thumb"):
             self.thumb = Photo(bot, self.thumb)
+
+# TODO: send
+class Contact:
+    def __init__(self, bot, contact_dict):
+        self.bot = bot
+        for i in contact_dict:
+            setattr(self, i, contact_dict[i])
