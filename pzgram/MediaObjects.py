@@ -1,6 +1,6 @@
 from .Api import *
 
-# TODO: send
+
 class GenericMedia:
     def __init__(self, bot, dict):
         self.bot = bot
@@ -9,7 +9,7 @@ class GenericMedia:
 
     def save(self, path):
         if hasattr(self, "file_path"):
-            # Some Media already have the file_path attrivure
+            # Some Media already have the file_path attribure
             download_file(self.bot, self.file_path, path)
         else:
             # Media dont have file_path, so i retrive it with getFile method
@@ -41,6 +41,15 @@ class Video(GenericMedia):
             self.thumb = Photo(bot, self.thumb)
 
 
+class VideoNote(GenericMedia):
+    """Rounded Square .mp4 Video"""
+    def __init__(self, bot, dict):
+        GenericMedia.__init__(self, bot, dict)
+        # Parse thumb as Photo object if exists
+        if hasattr(self, "thumb"):
+            self.thumb = Photo(bot, self.thumb)
+
+
 class Document(GenericMedia):
     def __init__(self, bot, dict):
         GenericMedia.__init__(self, bot, dict)
@@ -48,7 +57,7 @@ class Document(GenericMedia):
         if hasattr(self, "thumb"):
             self.thumb = Photo(bot, self.thumb)
 
-# TODO: send
+
 class Contact:
     def __init__(self, bot, contact_dict):
         self.bot = bot

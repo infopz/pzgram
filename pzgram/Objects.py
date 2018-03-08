@@ -1,3 +1,5 @@
+import os
+
 from .Parsing import message_types
 from .Useful import message_all_attributes as message_all
 from .Useful import *
@@ -60,6 +62,12 @@ class Message:
 
     def reply_video(self, videopath, **kwargs):
         return self.chat.send_video(videopath, reply_id=self.message_id, **kwargs)
+
+    def reply_videonote(self, videonotepath, **kwargs):
+        return self.chat.send_video(videonotepath, reply_id=self.message_id, **kwargs)
+
+    def reply_contact(self, phone_number, first_name, **kwargs):
+        return self.chat.send_contact(phone_number, first_name, **kwargs)
 
 
 class Chat:
@@ -201,6 +209,26 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendVideo", param, file))
 
+    def send_videonote(self, videonotepath, duration=None, length=None,
+                       notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
+        if not os.path.isfile(videonotepath):
+            raise FileNotFoundError("File " + videonotepath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(videonotepath)
+        file = {
+            "video_note": (name, open(videonotepath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "duration": duration,
+            "length": length,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendVideoNote", param, file))
+
     def send_contact(self, phone_number, first_name, last_name=None, user_id=None,
                      notification=True, reply_id=None, reply_markup=None):
         param = {
@@ -239,3 +267,9 @@ class User:
 
     def send_video(self, videopath, **kwargs):
         return Chat(self.bot, self.id).send_video(videopath, **kwargs)
+
+    def send_videonote(self, videonotepath, **kwargs):
+        return Chat(self.bot, self.id).send_video(videonotepath, **kwargs)
+
+    def send_contact(self, phone_number, first_name, **kwargs):
+        return Chat(self.bot, self.id).send_contact(phone_number, first_name, **kwargs)

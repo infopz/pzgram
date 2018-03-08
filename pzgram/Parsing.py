@@ -42,6 +42,10 @@ def parse_contact(message_dict, bot):
     message_dict["contact"] = Contact(bot, message_dict["contact"])
     return message_dict
 
+def parse_videonote(message_dict, bot):
+    message_dict["video_note"] = VideoNote(bot, message_dict["video_note"])
+    return message_dict
+
 
 message_types = {
     "text": parse_text,
@@ -52,7 +56,7 @@ message_types = {
     "sticker": nf,
     "video": parse_video,
     "voice": parse_voice,
-    "video_note": nf,
+    "video_note": parse_videonote,
     "caption": nf,
     "contact": parse_contact,
     "location": nf,
