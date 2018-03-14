@@ -45,6 +45,13 @@ class Message:
         }
         return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
 
+    def delete(self):
+        param  = {
+            "chat_id": self.chat.id,
+            "message_id": self.message_id
+        }
+        return api_request(self.bot, "deleteMessage", param=param)
+
     def reply(self, text, **kwargs):
         return self.chat.send(text, reply_to=self.message_id, **kwargs)
 
@@ -97,6 +104,13 @@ class Chat:
             "disable_notification": not notification
         }
         return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
+
+    def delete_message(self, message_id):
+        param = {
+            "chat_id": self.id,
+            "message_id": message_id
+        }
+        return api_request(self.bot, "deleteMessage", param=param)
 
     def send_action(self, action):
         param = {"chat_id": self.id, "action": action}
