@@ -63,3 +63,18 @@ class Contact:
         self.bot = bot
         for i in contact_dict:
             setattr(self, i, contact_dict[i])
+
+
+class Location:
+    def __init__(self, bot, location_dict):
+        self.bot = bot
+        for i in location_dict:
+            setattr(self, i, location_dict[i])
+
+
+class Venue:
+    def __init__(self, bot, venue_dict):
+        self.bot = bot
+        for i in venue_dict:
+            setattr(self, i, venue_dict[i])
+        self.location = Location(bot, venue_dict["location"])

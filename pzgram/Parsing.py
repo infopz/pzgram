@@ -1,3 +1,5 @@
+import collections
+
 from .Useful import notafunction as nf
 from .MediaObjects import *
 
@@ -48,29 +50,38 @@ def parse_videonote(message_dict, bot):
     return message_dict
 
 
-message_types = {
-    "text": parse_text,
-    "audio": parse_audio,
-    "document": parse_document,
-    "game": nf,
-    "photo": parse_photo,
-    "sticker": nf,
-    "video": parse_video,
-    "voice": parse_voice,
-    "video_note": parse_videonote,
-    "caption": nf,
-    "contact": parse_contact,
-    "location": nf,
-    "venue": nf,
-    "new_chat_members": nf,
-    "left_chat_member": nf,
-    "new_chat_title": nf,
-    "new_chat_photo": nf,
-    "delete_chat_photo": nf,
-    "group_chat_created": nf,
-    "supergroup_chat_created": nf,
-    "channel_chat_created": nf,
-    "migrate_to_chat_id": nf,
-    "migrate_from_chat_id": nf,
-    "pinned_message": nf
-}
+def parse_location(message_dict, bot):
+    message_dict["location"] = Location(bot, message_dict["location"])
+    return message_dict
+
+
+def parse_venue(message_dict, bot):
+    message_dict["venue"] = Venue(bot, message_dict["venue"])
+    return message_dict
+
+# Used a orderdDict to parse correctly the Venue
+message_types = collections.OrderedDict()
+message_types["text"] = parse_text
+message_types["audio"] = parse_audio
+message_types["document"] = parse_document
+message_types["game"] = nf
+message_types["photo"] = parse_photo
+message_types["sticker"] = nf
+message_types["video"] = parse_video
+message_types["voice"] = parse_voice
+message_types["video_note"] = parse_videonote
+message_types["caption"] = nf
+message_types["contact"] = parse_contact
+message_types["venue"] = parse_venue
+message_types["location"] = parse_location
+message_types["new_chat_members"] = nf
+message_types["left_chat_member"] = nf
+message_types["new_chat_title"] = nf
+message_types["new_chat_photo"] = nf
+message_types["delete_chat_photo"] = nf
+message_types["group_chat_created"] = nf
+message_types["supergroup_chat_created"] = nf
+message_types["channel_chat_created"] = nf
+message_types["migrate_to_chat_id"] = nf
+message_types["migrate_from_chat_id"] = nf
+message_types["pinned_message"] = nf

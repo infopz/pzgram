@@ -74,8 +74,13 @@ class Message:
         return self.chat.send_video(videonotepath, reply_id=self.message_id, **kwargs)
 
     def reply_contact(self, phone_number, first_name, **kwargs):
-        return self.chat.send_contact(phone_number, first_name, **kwargs)
+        return self.chat.send_contact(phone_number, first_name, reply_id=self.message_id, **kwargs)
 
+    def reply_location(self, latitude, longitude, **kwargs):
+        return self.chat.send_location(latitude, longitude, reply_id=self.message_id, **kwargs)
+
+    def reply_venue(self, latitude, longitude, title, address, **kwargs):
+        return self.chat.send_venue(latitude, longitude, title, address, reply_id=self.message_id, **kwargs)
 
 class Chat:
     def __init__(self, bot, id, chat_dict=dict()):
@@ -257,6 +262,33 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendContact", param))
 
+    def send_location(self, latitude, longitude, live_period=None, notification=True, reply_id=None, reply_markup=None):
+        param = {
+            "chat_id": self.id,
+            "latitude": latitude,
+            "longitude": longitude,
+            "live_period": live_period,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendLocation", param))
+
+    def send_venue(self, latitude, longitude, title, address, foursquare_id=None,
+                   notification=True, reply_id=None, reply_markup=None):
+        param = {
+            "chat_id": self.id,
+            "latitude": latitude,
+            "longitude": longitude,
+            "title": title,
+            "address": address,
+            "foursquare_id": foursquare_id,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendVenue", param))
+
 
 class User:
     def __init__(self, bot, user_dict):
@@ -287,3 +319,9 @@ class User:
 
     def send_contact(self, phone_number, first_name, **kwargs):
         return Chat(self.bot, self.id).send_contact(phone_number, first_name, **kwargs)
+
+    def send_location(self, latitude, longitude, **kwargs):
+        return Chat(self.bot, self.id).send_location(latitude, longitude, **kwargs)
+
+    def send_venue(self, latitude, longitude, title, address, **kwargs):
+        return Chat(self.bot, self.id).send_location(latitude, longitude, title, address, **kwargs)
