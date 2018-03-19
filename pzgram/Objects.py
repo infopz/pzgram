@@ -296,6 +296,25 @@ class User:
         for i in user_dict:
             setattr(self, i, user_dict[i])
 
+    def get_profile_photos(self, offset=None, limit=None):
+        # Offset from the first, default send the last 100 profile photos
+        p = {
+            "user_id": self.id,
+            "offset": offset,
+            "limit": limit
+        }
+        photos_dict = api_request(self.bot, "getUserProfilePhotos", p)
+        # List of List of PhotoSize (Each photo has more sizes)
+        photos = []
+        for i in photos_dict["photos"]:
+            # For each Photo
+            photo = []
+            for j in i:
+                # For each size
+                photo.append(Photo(self.bot, j))
+            photos.append(photo)
+        return photos
+
     def send(self, text, **kwargs):
         return Chat(self.bot, self.id).send(text, **kwargs)
 
