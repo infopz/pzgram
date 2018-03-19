@@ -8,7 +8,7 @@ setup(
   author = 'Giovani Casari',
   author_email = 'casari.giovanni@gmail.com',
   url = 'https://github.com/infopz/pzgram',
-  download_url = 'https://github.com/infopz/pzgram/archive/0.2.tar.gz',
+  download_url = 'https://github.com/infopz/pzgram/archive/0.2.1.tar.gz',
   license = 'LICENSE.txt',
   install_requires = ["requests >= 2.18.4"],
   keywords = ['telegram', 'telegram-bot', 'telegram-api'],
