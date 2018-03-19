@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
   name = 'pzgram',
   packages = ['pzgram'],
-  version = '0.2',
+  version = '0.2.1',
   description = 'A pz-way to create your telegram bot',
   author = 'Giovani Casari',
   author_email = 'casari.giovanni@gmail.com',
