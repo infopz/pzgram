@@ -46,7 +46,7 @@ class Message:
         return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
 
     def delete(self):
-        param  = {
+        param = {
             "chat_id": self.chat.id,
             "message_id": self.message_id
         }
@@ -81,6 +81,7 @@ class Message:
 
     def reply_venue(self, latitude, longitude, title, address, **kwargs):
         return self.chat.send_venue(latitude, longitude, title, address, reply_id=self.message_id, **kwargs)
+
 
 class Chat:
     def __init__(self, bot, id, chat_dict=dict()):

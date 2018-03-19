@@ -57,6 +57,7 @@ def parse_location(message_dict, bot):
 
 def parse_venue(message_dict, bot):
     message_dict["venue"] = Venue(bot, message_dict["venue"])
+    message_dict["location"] = message_dict["venue"].location
     return message_dict
 
 # Used a orderdDict to parse correctly the Venue
