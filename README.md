@@ -21,7 +21,7 @@ Italian documentation [here](https://github.com/infopz/pzgram/wiki)
 For more information contact me:
 * telegram: @infopz
 * email: casari.giovanni@gmail.com
-* website: [infopz.hopto.org](infopz.hopto.org)
+* website: [infopz.hopto.org](http://infopz.hopto.org)
 
 **Supported Version**: Python 3.x
 
