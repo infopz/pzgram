@@ -1,7 +1,7 @@
 import collections
 
-from .Useful import notafunction as nf
-from .MediaObjects import *
+from .useful import notafunction as nf
+from .media_objects import *
 
 
 def parse_text(message_dict, bot):

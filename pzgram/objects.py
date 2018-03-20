@@ -1,10 +1,10 @@
 import os
 
-from .Parsing import message_types
-from .Useful import message_all_attributes as message_all
-from .Useful import *
+from .parsing import message_types
+from .useful import message_all_attributes as message_all
+from .useful import *
 
-from .MediaObjects import *
+from .media_objects import *
 
 
 class Message:

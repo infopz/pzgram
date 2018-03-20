@@ -1,10 +1,10 @@
 import threading
 import traceback
 
-from .Objects import *
-from .Useful import notafunction as nf
-from .Useful import *
-from .Exceptions import *
+from .objects import *
+from .useful import notafunction as nf
+from .useful import *
+from .exceptions import *
 
 
 class Bot:

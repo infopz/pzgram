@@ -1,4 +1,4 @@
-from .Api import *
+from .api import *
 
 
 class GenericMedia:

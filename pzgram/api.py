@@ -1,6 +1,6 @@
 import requests
 
-from .Exceptions import *
+from .exceptions import *
 
 
 def api_request(bot, method, param=None, files=None, timeout=None):
