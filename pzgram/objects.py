@@ -102,7 +102,7 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendMessage", param))
 
-    def forward_message(self, chat_id, message_id, notification=True):
+    def forward_message(self, message_id, chat_id, notification=True):
         param = {
             "chat_id": chat_id,
             "from_chat_id": self.id,

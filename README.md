@@ -13,4 +13,16 @@ bot.set_commands({"hello": hello})
 bot.run()
 ```
 
-pzgram is a library that allows you to create your personal Telegram bot.
+pzgram is a python library that allows you to create your personal Telegram bot, in a very easy way.
+
+
+Italian documentation [here](https://github.com/infopz/pzgram/wiki)
+
+For more information contact me:
+* telegram: @infopz
+* email: casari.giovanni@gmail.com
+* website: [infopz.hopto.org](infopz.hopto.org)
+
+**Supported Version**: Python 3.x
+
+**License**: Apache License 2.0
