@@ -2,12 +2,13 @@ import os
 
 from .parsing import message_types, parse_forward_reply
 from .useful import message_all_attributes as message_all
+from .useful import chat_all_attributes as chat_all
+from .useful import user_all_attirbutes as user_all
 from .useful import *
 
 from .media_objects import *
 
 
-# FIXME: Change __init__ in all Class
 class Message:
     def __init__(self, bot, message_dict):
         self.bot = bot
@@ -31,7 +32,7 @@ class Message:
             if i not in message_dict:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
-        # FIXME: Check if this work with Channels or Groups
+        # FIXME: Check if this work with Channels
         message_dict["sender"] = User(bot, message_dict["from"])
         message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
@@ -89,9 +90,13 @@ class Message:
 class Chat:
     def __init__(self, bot, id, chat_dict=dict()):
         self.bot = bot
+        # For all attributes, check if is in the dict, otherwise set to None
+        for i in chat_all:
+            if i in chat_dict:
+                setattr(self, i, chat_dict[i])
+            else:
+                setattr(self, i, None)
         self.id = id
-        for i in chat_dict:
-            setattr(self, i, chat_dict[i])
 
     def send(self, text, parse_mode="markdown", preview=True, notification=True, reply_to=None, reply_markup=None):
         param = {
@@ -297,8 +302,12 @@ class Chat:
 class User:
     def __init__(self, bot, user_dict):
         self.bot = bot
-        for i in user_dict:
-            setattr(self, i, user_dict[i])
+        # For all attributes, check if is in the dict, otherwise set to None
+        for i in user_all:
+            if i in user_dict:
+                setattr(self, i, user_dict[i])
+            else:
+                setattr(self, i, None)
 
     def get_profile_photos(self, offset=None, limit=None):
         # Offset from the first, default send the last 100 profile photos
