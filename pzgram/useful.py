@@ -9,7 +9,7 @@ message_all_attributes = [
     "text", "entities", "caption_entities", "audio", "document", "game", "photo", "sticker", "video",
     "voice", "video_note", "caption", "contact", "location", "venue",
     "new_chat_members", "left_chat_member", "new_chat_title", "new_chat_photo", "delete_chat_photo",
-    "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_to_chat_id",
+    "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_from_chat_id",
     "migrate_to_chat_id", "pinned_message"
 ]  # TODO: paymets
 
@@ -23,7 +23,7 @@ user_all_attirbutes = [
 ]
 
 
-def notafunction():
+def notafunction(*args, **kwargs):
     """Default functions for some parts of bot"""
     pass
 
@@ -41,7 +41,8 @@ def call(f, args):
 
 def default_start(chat, message, bot):
     """Default function for /start command"""
-    chat.send("Hi *" + message.sender.first_name + "*, Welcome on @" + bot.username + "\nUse /help to view all commands")
+    chat.send("Hi *" + message.sender.first_name + "*, Welcome on @" + bot.username +
+              "\nUse /help to view all commands")
 
 
 def default_help(chat, bot):

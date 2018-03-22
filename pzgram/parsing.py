@@ -1,7 +1,24 @@
 import collections
 
-from .useful import notafunction as nf
 from .media_objects import *
+
+
+def parse_forward_reply(message_dict, bot):
+    if "forward_from" in message_dict:
+        from .objects import User
+        message_dict["forward_from"] = User(bot, message_dict["forward_from"])
+    if "forward_from_chat" in message_dict:
+        from .objects import Chat
+        message_dict["forward_from_chat"] = Chat(bot, message_dict["forward_from"])
+    if "reply_to_message" in message_dict:
+        from .objects import Message
+        message_dict["reply_to_message"] = Message(bot, message_dict["reply_to_message"])
+    return message_dict
+
+
+def df(message_dict, bot):
+    # Default Parsing Func, used when no actions are required, or that type is not supported yet
+    return message_dict
 
 
 def parse_text(message_dict, bot):
@@ -60,29 +77,62 @@ def parse_venue(message_dict, bot):
     message_dict["location"] = message_dict["venue"].location
     return message_dict
 
+
+def parse_new_user(message_dict, bot):
+    from .objects import User
+    new_users = []
+    # Convert all dict in User object
+    for u in message_dict["new_chat_members"]:
+        new_users.append(User(bot, u))
+    message_dict["new_chat_members"] = new_users
+    # Delete useless keys
+    message_dict.pop("new_chat_participant", None)
+    message_dict.pop("new_chat_member", None)
+    return message_dict
+
+
+def parse_left_user(message_dict, bot):
+    from .objects import User
+    message_dict["left_chat_member"] = User(bot, message_dict["left_chat_memeber"])
+    message_dict.pop("left_chat_participant", None)
+
+
+def parse_new_chat_photo(message_dict, bot):
+    photos = []
+    for p in message_dict["new_chat_photo"]:
+        photos.append(Photo(bot, p))
+    message_dict["new_chat_photo"] = photos
+    return message_dict
+
+
+def parse_pinned_message(message_dict, bot):
+    from .objects import Message
+    message_dict["pinned_message"] = Message(bot, message_dict["pinned_message"])
+    return message_dict
+
+
 # Used a orderdDict to parse correctly the Venue
 message_types = collections.OrderedDict()
 message_types["text"] = parse_text
 message_types["audio"] = parse_audio
 message_types["document"] = parse_document
-message_types["game"] = nf
+message_types["game"] = df
 message_types["photo"] = parse_photo
-message_types["sticker"] = nf
+message_types["sticker"] = df
 message_types["video"] = parse_video
 message_types["voice"] = parse_voice
 message_types["video_note"] = parse_videonote
-message_types["caption"] = nf
 message_types["contact"] = parse_contact
 message_types["venue"] = parse_venue
 message_types["location"] = parse_location
-message_types["new_chat_members"] = nf
-message_types["left_chat_member"] = nf
-message_types["new_chat_title"] = nf
-message_types["new_chat_photo"] = nf
-message_types["delete_chat_photo"] = nf
-message_types["group_chat_created"] = nf
-message_types["supergroup_chat_created"] = nf
-message_types["channel_chat_created"] = nf
-message_types["migrate_to_chat_id"] = nf
-message_types["migrate_from_chat_id"] = nf
-message_types["pinned_message"] = nf
+message_types["new_chat_members"] = parse_new_user
+message_types["left_chat_member"] = parse_left_user
+message_types["new_chat_title"] = df
+message_types["new_chat_photo"] = parse_new_chat_photo
+message_types["delete_chat_photo"] = df
+message_types["group_chat_created"] = df
+message_types["supergroup_chat_created"] = df
+message_types["channel_chat_created"] = df
+message_types["migrate_to_chat_id"] = df
+message_types["migrate_from_chat_id"] = df
+message_types["pinned_message"] = parse_pinned_message

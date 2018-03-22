@@ -1,12 +1,13 @@
 import os
 
-from .parsing import message_types
+from .parsing import message_types, parse_forward_reply
 from .useful import message_all_attributes as message_all
 from .useful import *
 
 from .media_objects import *
 
 
+# FIXME: Change __init__ in all Class
 class Message:
     def __init__(self, bot, message_dict):
         self.bot = bot
@@ -23,6 +24,8 @@ class Message:
                 else:
                     message_dict = res
                 break
+        # Parse other things
+        message_dict = parse_forward_reply(message_dict, bot)
         # Add all possbile attributes to message_dict and set to None
         for i in message_all:
             if i not in message_dict:
