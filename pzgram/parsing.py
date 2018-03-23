@@ -23,9 +23,12 @@ def df(message_dict, bot):
 
 def parse_text(message_dict, bot):
     if message_dict["text"].startswith("/"):
-        message_dict["command"] = message_dict["text"].split()[0][1:]
-        message_dict["args"] = message_dict["text"].split()[1:]
-        return message_dict, "command"
+        split = message_dict["text"].split()
+        # Insert another split with @ to avoid error with /try@mybot
+        message_dict["command"] = split[0][1:].split("@")[0]
+        message_dict["args"] = split[1:]
+        # Add the "type" key to dict, in order to change the type from text to command
+        message_dict["type"] = "command"
     return message_dict
 
 
@@ -93,7 +96,7 @@ def parse_new_user(message_dict, bot):
 
 def parse_left_user(message_dict, bot):
     from .objects import User
-    message_dict["left_chat_member"] = User(bot, message_dict["left_chat_memeber"])
+    message_dict["left_chat_member"] = User(bot, message_dict["left_chat_member"])
     message_dict.pop("left_chat_participant", None)
 
 

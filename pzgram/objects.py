@@ -17,13 +17,7 @@ class Message:
             if t in message_dict:
                 self.type = t
                 # Call the connected method for parsing that type of message
-                res = message_types[t](message_dict, bot)
-                # Check if return 1 or 2 values (First is the dict, Second is the new type)
-                if isinstance(res, tuple):
-                    message_dict = res[0]
-                    self.type = res[1]
-                else:
-                    message_dict = res
+                message_dict = message_types[t](message_dict, bot)
                 break
         # Parse other things
         message_dict = parse_forward_reply(message_dict, bot)
@@ -97,6 +91,17 @@ class Chat:
             else:
                 setattr(self, i, None)
         self.id = id
+        # Parse pinned_message and photo if they are not None (only returned in getChat)
+        if self.pinned_message is not None:
+            self.pinned_message = Message(bot, self.pinned_message)
+        if self.photo is not None:
+            # TODO
+            pass
+
+    def get_info(self):
+        p = {"chat_id": self.id}
+        chat = api_request(self.bot, "getChat", p)
+        return Chat(self.bot, chat["id"], chat)
 
     def send(self, text, parse_mode="markdown", preview=True, notification=True, reply_to=None, reply_markup=None):
         param = {
@@ -298,6 +303,36 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendVenue", param))
 
+    def kick_user(self, user_id, until_date=None):
+        if self.type == "private":
+            raise NotGroupChatError("You can't kick someone from a private Chat")
+        p = {
+            "chat_id": self.id,
+            "user_id": user_id,
+            "until_date": until_date
+        }
+        return api_request(self.bot, "kickChatMember", p)
+
+    def unban_user(self, user_id):
+        if self.type == "private":
+            raise NotGroupChatError("You can't unban someone from a private Chat")
+        p = {"chat_id": self.id, "user_id": user_id}
+        return api_request(self.bot, "unbanChatMember")
+
+    def restrict_user(self, user_id, until_date=None,
+                      send_message=None, send_media=None, send_other=None, web_page_preview=None):
+        if self.type != "supergroup":
+            raise NotGroupChatError("RestrictUser can only be used in supergroups")
+        p = {
+            "chat_id": self.id,
+            "user_id": user_id,
+            "until_date": until_date,
+            "can_send_messages": send_message,
+            "can_send_media_messages": send_media,
+            "can_send_other_messages": send_other,
+            "can_add_web_page_previews": web_page_preview
+        }
+        return api_request(self.bot, "restrictChatMember", p)
 
 class User:
     def __init__(self, bot, user_dict):

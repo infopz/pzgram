@@ -9,3 +9,7 @@ class TelegramConnectionError(Exception):
 
 class FileNotFoundError(Exception):
     pass
+
+
+class NotGroupChatError(Exception):
+    pass
