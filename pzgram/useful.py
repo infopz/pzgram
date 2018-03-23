@@ -3,7 +3,7 @@ import time
 import json
 
 message_all_attributes = [
-    "message_id", "from", "date", "chat",
+    "message_id", "sender", "date", "chat", "args",
     "forward_from", "forward_from_chat", "forward_from_message_id", "forward_from_signature",
     "reply_to_message", "edit_date", "media_group_id", "author_signature",
     "text", "entities", "caption_entities", "audio", "document", "game", "photo", "sticker", "video",

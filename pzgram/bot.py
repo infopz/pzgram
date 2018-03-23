@@ -93,7 +93,8 @@ class Bot:
         if "message" in update:
             message = Message(self, update["message"])
             chat = message.chat
-            possibile_args = {"message": message, "chat": chat, "bot": self}
+            possibile_args = {"message": message, "chat": chat, "sender": message.sender,
+                              "args": message.args, "bot": self}
             # Call processAll function passing all the possible args
             # If Function return something, stop running this update
             if call(self.processAll, possibile_args):

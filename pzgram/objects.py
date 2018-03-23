@@ -34,6 +34,12 @@ class Message:
         for i in message_dict:
             setattr(self, i, message_dict[i])
 
+    def __str__(self):
+        return "MessageObject{Type:" + self.type + " From:" + str(self.chat.id) + "}"
+
+    def __repr__(self):
+        return "MessageObject" + str(self.message_id)
+
     def forward(self, chat_id, notification=True):
         param = {
             "chat_id": chat_id,
@@ -97,6 +103,16 @@ class Chat:
         if self.photo is not None:
             # TODO
             pass
+
+    def __str__(self):
+        if self.type == "private":
+            m = "Name:" + self.first_name
+        else:
+            m = "Title:" + self.title
+        return "ChatObject{Id:" + str(self.id) + " " + m + "}"
+
+    def __repr__(self):
+        return "ChatObject" + str(self.id)
 
     def get_info(self):
         p = {"chat_id": self.id}
@@ -334,6 +350,7 @@ class Chat:
         }
         return api_request(self.bot, "restrictChatMember", p)
 
+
 class User:
     def __init__(self, bot, user_dict):
         self.bot = bot
@@ -343,6 +360,15 @@ class User:
                 setattr(self, i, user_dict[i])
             else:
                 setattr(self, i, None)
+
+    def __str__(self):
+        if self.is_bot:
+            return "UserObject{Id:" + str(self.id) + " Name:" + self.first_name + " IsBot: True}"
+        else:
+            return "UserObject{Id:" + str(self.id) + " Name:" + self.first_name + "}"
+
+    def __repr__(self):
+        return "UserObject" + str(self.id)
 
     def get_profile_photos(self, offset=None, limit=None):
         # Offset from the first, default send the last 100 profile photos
