@@ -7,6 +7,9 @@ class GenericMedia:
         for i in dict:
             setattr(self, i, dict[i])
 
+    def __str__(self):
+        return "MediaObject" + self.file_id
+
     def save(self, path):
         if hasattr(self, "file_path"):
             # Some Media already have the file_path attribure
@@ -19,7 +22,6 @@ class GenericMedia:
 
 class Photo(GenericMedia):
     """Extension .jpg .png"""
-    pass
 
 
 class Voice(GenericMedia):

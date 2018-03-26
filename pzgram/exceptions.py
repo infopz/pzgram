@@ -11,5 +11,5 @@ class FileNotFoundError(Exception):
     pass
 
 
-class NotGroupChatError(Exception):
+class WrongChatTypeError(Exception):
     pass

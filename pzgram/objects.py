@@ -4,6 +4,7 @@ from .parsing import message_types, parse_forward_reply
 from .useful import message_all_attributes as message_all
 from .useful import chat_all_attributes as chat_all
 from .useful import user_all_attirbutes as user_all
+from .useful import chat_member_all_attributes as chat_mem_all
 from .useful import *
 
 from .media_objects import *
@@ -321,7 +322,7 @@ class Chat:
 
     def kick_user(self, user_id, until_date=None):
         if self.type == "private":
-            raise NotGroupChatError("You can't kick someone from a private Chat")
+            raise WrongChatTypeError("You can't kick someone from a private Chat")
         p = {
             "chat_id": self.id,
             "user_id": user_id,
@@ -331,14 +332,14 @@ class Chat:
 
     def unban_user(self, user_id):
         if self.type == "private":
-            raise NotGroupChatError("You can't unban someone from a private Chat")
+            raise WrongChatTypeError("You can't unban someone from a private Chat")
         p = {"chat_id": self.id, "user_id": user_id}
         return api_request(self.bot, "unbanChatMember")
 
     def restrict_user(self, user_id, until_date=None,
                       send_message=None, send_media=None, send_other=None, web_page_preview=None):
         if self.type != "supergroup":
-            raise NotGroupChatError("RestrictUser can only be used in supergroups")
+            raise WrongChatTypeError("RestrictUser can only be used in supergroups")
         p = {
             "chat_id": self.id,
             "user_id": user_id,
@@ -350,6 +351,80 @@ class Chat:
         }
         return api_request(self.bot, "restrictChatMember", p)
 
+    def promote_user(self, user_id, change_info=None, post_message=None, edit_message=None, delete_message=None,
+                     invite_user=None, restrict_user=None, pin_message=None, promote_user=None):
+        if self.type != "supergroup" and self.type != "channel":
+            raise WrongChatTypeError("PromoteUser can only be used in supergroups or channels")
+        p = {
+            "chat_id": self.id,
+            "user_id": user_id,
+            "can_change_info": change_info,
+            "can_post_messages": post_message,
+            "can_edit_messages": edit_message,
+            "can_delete_message": delete_message,
+            "can_invite_users": invite_user,
+            "can_restrict_users": restrict_user,
+            "can_pin_messages": pin_message,
+            "can_promote_users": promote_user
+        }
+        return api_request(self.bot, "promoteChatMember", p)
+
+    def new_invite_link(self):
+        return api_request(self.bot, "exportChatInviteLink", {"chat_id": self.id})
+
+    def set_photo(self, photopath):
+        # Check if file exists
+        if not os.path.isfile(photopath):
+            raise FileNotFoundError("File " + photopath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(photopath)
+        file = {
+            "photo": (name, open(photopath, "rb"))
+        }
+        return api_request(self.bot, "setChatPhoto", {"chat_id": self.id}, file)
+
+    def delete_photo(self):
+        if self.type == "private":
+            raise WrongChatTypeError("DeleteChatPhoto can only be used in groups or channels")
+        return api_request(self.bot, "deleteChatPhoto", {"chat_id": self.id})
+
+    def set_title(self, title):
+        if self.type == "private":
+            raise WrongChatTypeError("SetChatTitle can only be used in groups or channels")
+        return api_request(self.bot, "setChatTitle", {"chat_id": self.id, "title": title})
+
+    def set_description(self, description):
+        if self.type == "private" or self.type == "group":
+            raise WrongChatTypeError("SetChatDescription can only be used in supergroups or channels")
+        return api_request(self.bot, "setChatTitle", {"chat_id": self.id, "description": description})
+
+    def pin_message(self, message_id, notification=True):
+        if self.type == "private" or self.type == "group":
+            raise WrongChatTypeError("PinMessage can only be used in supergroups or channels")
+        p = {
+            "chat_id": self.id,
+            "message_id": message_id,
+            "disable_notification": not notification
+        }
+        return api_request(self.bot, "pinChatMessage", p)
+
+    def unpin_message(self):
+        if self.type == "private" or self.type == "group":
+            raise WrongChatTypeError("unPinMessage can only be used in supergroups or channels")
+        api_request(self.bot, "unpinChatMessage", {"chat_id": self.id})
+
+    def leave(self):
+        if self.type == "private":
+            raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
+        api_request(self.bot, "leaveChat", {"chat_id": self.id})
+
+    def get_admnistrator(self):
+        # Return a list of ChatMember objects, each rappresenting a single admin
+        users = api_request(self.bot, "getChatAdministrator", {"chat_id": self.id})
+        admins = []
+        for u in users:
+            admins.append(ChatMember(self.bot, u))
+        return admins # TODO
 
 class User:
     def __init__(self, bot, user_dict):
@@ -418,3 +493,15 @@ class User:
 
     def send_venue(self, latitude, longitude, title, address, **kwargs):
         return Chat(self.bot, self.id).send_location(latitude, longitude, title, address, **kwargs)
+
+
+class ChatMember(User):
+    def __init__(self, bot, user_dict):
+        # Call the User init, and after, set the attributes of a ChatMember
+        User.__init__(self, bot, user_dict["user"])
+        user_dict.pop("user", None)
+        for i in chat_mem_all:
+            if i in user_dict:
+                setattr(self, i, user_dict[i])
+            else:
+                setattr(self, i, None)
