@@ -419,12 +419,25 @@ class Chat:
         api_request(self.bot, "leaveChat", {"chat_id": self.id})
 
     def get_admnistrator(self):
+        if self.type == "private":
+            raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
         # Return a list of ChatMember objects, each rappresenting a single admin
         users = api_request(self.bot, "getChatAdministrator", {"chat_id": self.id})
         admins = []
         for u in users:
             admins.append(ChatMember(self.bot, u))
-        return admins # TODO
+        return admins
+
+    def get_member_count(self):
+        if self.type == "private":
+            raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
+        return api_request(self.bot, "getChatMembersCount", {"chat_id": self.id})
+
+    def get_member(self, user_id):
+        if self.type == "private":
+            raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
+        return ChatMember(self.bot, api_request(self.bot, "getChatMember", {"chat_id": self.id, "user_id": user_id}))
+
 
 class User:
     def __init__(self, bot, user_dict):
