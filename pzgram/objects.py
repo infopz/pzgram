@@ -57,6 +57,17 @@ class Message:
         }
         return api_request(self.bot, "deleteMessage", param=param)
 
+    def edit(self, text, parse_mode=None, preview=None, reply_markup=None):
+        p = {
+            "chat_id": self.chat.id,
+            "message_id": self.id,
+            "text": text,
+            "parse_mode": parse_mode,
+            "disable_web_page_preview": preview,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "editMessageText", p))
+
     def reply(self, text, **kwargs):
         return self.chat.send(text, reply_to=self.message_id, **kwargs)
 
@@ -147,6 +158,17 @@ class Chat:
             "message_id": message_id
         }
         return api_request(self.bot, "deleteMessage", param=param)
+
+    def edit_message(self, message_id, text, parse_mode=None, preview=None, reply_markup=None):
+        p = {
+            "chat_id": self.id,
+            "message_id": message_id,
+            "text": text,
+            "parse_mode": parse_mode,
+            "disable_web_page_preview": preview,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "editMessageText", p))
 
     def send_action(self, action):
         param = {"chat_id": self.id, "action": action}
