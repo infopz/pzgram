@@ -98,6 +98,7 @@ def parse_left_user(message_dict, bot):
     from .objects import User
     message_dict["left_chat_member"] = User(bot, message_dict["left_chat_member"])
     message_dict.pop("left_chat_participant", None)
+    return message_dict
 
 
 def parse_new_chat_photo(message_dict, bot):

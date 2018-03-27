@@ -31,6 +31,8 @@ class Message:
         message_dict["sender"] = User(bot, message_dict["from"])
         message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
+        # Change message_id to id
+        message_dict["id"] = message_dict.pop("message_id")
         # Memorize all attributes
         for i in message_dict:
             setattr(self, i, message_dict[i])
@@ -39,13 +41,13 @@ class Message:
         return "MessageObject{Type:" + self.type + " From:" + str(self.chat.id) + "}"
 
     def __repr__(self):
-        return "MessageObject" + str(self.message_id)
+        return "MessageObject" + str(self.id)
 
     def forward(self, chat_id, notification=True):
         param = {
             "chat_id": chat_id,
             "from_chat_id": self.chat.id,
-            "message_id": self.message_id,
+            "message_id": self.id,
             "disable_notification": not notification
         }
         return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
@@ -53,7 +55,7 @@ class Message:
     def delete(self):
         param = {
             "chat_id": self.chat.id,
-            "message_id": self.message_id
+            "message_id": self.id
         }
         return api_request(self.bot, "deleteMessage", param=param)
 
@@ -69,34 +71,34 @@ class Message:
         return Message(self.bot, api_request(self.bot, "editMessageText", p))
 
     def reply(self, text, **kwargs):
-        return self.chat.send(text, reply_to=self.message_id, **kwargs)
+        return self.chat.send(text, reply_to=self.id, **kwargs)
 
     def reply_photo(self, photopath, **kwargs):
-        return self.chat.send_photo(photopath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_photo(photopath, reply_id=self.id, **kwargs)
 
     def reply_voice(self, voicepath, **kwargs):
-        return self.chat.send_voice(voicepath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_voice(voicepath, reply_id=self.id, **kwargs)
 
     def reply_audio(self, audiopath, **kwargs):
-        return self.chat.send_audio(audiopath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_audio(audiopath, reply_id=self.id, **kwargs)
 
     def reply_document(self, documentpath, **kwargs):
-        return self.chat.send_document(documentpath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_document(documentpath, reply_id=self.id, **kwargs)
 
     def reply_video(self, videopath, **kwargs):
-        return self.chat.send_video(videopath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_video(videopath, reply_id=self.id, **kwargs)
 
     def reply_videonote(self, videonotepath, **kwargs):
-        return self.chat.send_video(videonotepath, reply_id=self.message_id, **kwargs)
+        return self.chat.send_video(videonotepath, reply_id=self.id, **kwargs)
 
     def reply_contact(self, phone_number, first_name, **kwargs):
-        return self.chat.send_contact(phone_number, first_name, reply_id=self.message_id, **kwargs)
+        return self.chat.send_contact(phone_number, first_name, reply_id=self.id, **kwargs)
 
     def reply_location(self, latitude, longitude, **kwargs):
-        return self.chat.send_location(latitude, longitude, reply_id=self.message_id, **kwargs)
+        return self.chat.send_location(latitude, longitude, reply_id=self.id, **kwargs)
 
     def reply_venue(self, latitude, longitude, title, address, **kwargs):
-        return self.chat.send_venue(latitude, longitude, title, address, reply_id=self.message_id, **kwargs)
+        return self.chat.send_venue(latitude, longitude, title, address, reply_id=self.id, **kwargs)
 
 
 class Chat:
@@ -418,7 +420,7 @@ class Chat:
     def set_description(self, description):
         if self.type == "private" or self.type == "group":
             raise WrongChatTypeError("SetChatDescription can only be used in supergroups or channels")
-        return api_request(self.bot, "setChatTitle", {"chat_id": self.id, "description": description})
+        return api_request(self.bot, "setChatDescription", {"chat_id": self.id, "description": description})
 
     def pin_message(self, message_id, notification=True):
         if self.type == "private" or self.type == "group":
@@ -440,11 +442,11 @@ class Chat:
             raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
         api_request(self.bot, "leaveChat", {"chat_id": self.id})
 
-    def get_admnistrator(self):
+    def get_administrator(self):
         if self.type == "private":
             raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
         # Return a list of ChatMember objects, each rappresenting a single admin
-        users = api_request(self.bot, "getChatAdministrator", {"chat_id": self.id})
+        users = api_request(self.bot, "getChatAdministrators", {"chat_id": self.id})
         admins = []
         for u in users:
             admins.append(ChatMember(self.bot, u))
