@@ -4,7 +4,7 @@ from .api import *
 class GenericMedia:
     def __init__(self, bot, dict):
         self.bot = bot
-        for i in self.attirbutes:
+        for i in self.attributes:
             if i in dict:
                 setattr(self, i, dict[i])
             else:
@@ -91,8 +91,8 @@ class Contact:
 
     def __init__(self, bot, contact_dict):
         self.bot = bot
-        for i in self.attirbutes:
-            if i in dict:
+        for i in self.attributes:
+            if i in contact_dict:
                 setattr(self, i, contact_dict[i])
             else:
                 setattr(self, i, None)
@@ -117,8 +117,8 @@ class Venue:
 
     def __init__(self, bot, venue_dict):
         self.bot = bot
-        for i in self.attirbutes:
-            if i in dict:
+        for i in self.attributes:
+            if i in venue_dict:
                 setattr(self, i, venue_dict[i])
             else:
                 setattr(self, i, None)

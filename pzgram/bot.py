@@ -49,7 +49,7 @@ class Bot:
             # For each timer create a different thread
             for t in self.timers:
                 threading.Thread(target=self.run_timer, args=(self.timers[t], t), daemon=True).start()
-        print(time_for_log() + "Bot Started")
+        print(time_for_log() + self.name + " Started")
         try:
             self.run_bot()
         except KeyboardInterrupt:
