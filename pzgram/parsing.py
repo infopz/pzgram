@@ -81,6 +81,11 @@ def parse_venue(message_dict, bot):
     return message_dict
 
 
+def parse_sticker(message_dict, bot):
+    message_dict["sticker"] = Sticker(bot, message_dict["sticker"])
+    return message_dict
+
+
 def parse_new_user(message_dict, bot):
     from .objects import User
     new_users = []
@@ -122,7 +127,7 @@ message_types["audio"] = parse_audio
 message_types["document"] = parse_document
 message_types["game"] = df
 message_types["photo"] = parse_photo
-message_types["sticker"] = df
+message_types["sticker"] = parse_sticker
 message_types["video"] = parse_video
 message_types["voice"] = parse_voice
 message_types["video_note"] = parse_videonote

@@ -52,6 +52,15 @@ class VideoNote(GenericMedia):
             self.thumb = Photo(bot, self.thumb)
 
 
+class Sticker(GenericMedia):
+    "Exstension .webp"
+    def __init__(self, bot, dict):
+        GenericMedia.__init__(self, bot, dict)
+        # Parse thumb as Photo object if exists
+        if hasattr(self, "thumb"):
+            self.thumb = Photo(bot, self.thumb)
+
+
 class Document(GenericMedia):
     def __init__(self, bot, dict):
         GenericMedia.__init__(self, bot, dict)
@@ -80,3 +89,4 @@ class Venue:
         for i in venue_dict:
             setattr(self, i, venue_dict[i])
         self.location = Location(bot, venue_dict["location"])
+

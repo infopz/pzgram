@@ -27,9 +27,9 @@ class Message:
             if i not in message_dict:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
-        # FIXME: Check if this work with Channels
-        message_dict["sender"] = User(bot, message_dict["from"])
-        message_dict.pop("from")
+        if "from" in message_dict:
+            message_dict["sender"] = User(bot, message_dict["from"])
+            message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
         # Change message_id to id
         message_dict["id"] = message_dict.pop("message_id")
@@ -91,6 +91,9 @@ class Message:
     def reply_videonote(self, videonotepath, **kwargs):
         return self.chat.send_video(videonotepath, reply_id=self.id, **kwargs)
 
+    def reply_sticker(self, stickerpath, **kwargs):
+        return self.chat.send_sticker(stickerpath, reply_id=self.id, **kwargs)
+
     def reply_contact(self, phone_number, first_name, **kwargs):
         return self.chat.send_contact(phone_number, first_name, reply_id=self.id, **kwargs)
 
@@ -134,6 +137,7 @@ class Chat:
         return Chat(self.bot, chat["id"], chat)
 
     def send(self, text, parse_mode="markdown", preview=True, notification=True, reply_to=None, reply_markup=None):
+        # TODO: Check Type Text
         param = {
             "chat_id": self.id,
             "text": text,
@@ -302,6 +306,23 @@ class Chat:
             "reply_markup": reply_markup
         }
         return Message(self.bot, api_request(self.bot, "sendVideoNote", param, file))
+
+    def send_sticker(self, stickerpath, notification=True, reply_id=None, reply_markup=None):
+        # Check if file exists
+        if not os.path.isfile(stickerpath):
+            raise FileNotFoundError("File " + stickerpath + " not exists or is a folder")
+        # Find the name of that file from his path
+        name = file_name(stickerpath)
+        file = {
+            "sticker": (name, open(stickerpath, "rb"))
+        }
+        param = {
+            "chat_id": self.id,
+            "disable_notification": not notification,
+            "reply_to_message_id": reply_id,
+            "reply_markup": reply_markup
+        }
+        return Message(self.bot, api_request(self.bot, "sendSticker", param, file))
 
     def send_contact(self, phone_number, first_name, last_name=None, user_id=None,
                      notification=True, reply_id=None, reply_markup=None):
@@ -521,6 +542,9 @@ class User:
 
     def send_videonote(self, videonotepath, **kwargs):
         return Chat(self.bot, self.id).send_video(videonotepath, **kwargs)
+
+    def send_sticker(self, stickerpath, **kwargs):
+        return Chat(self.bot, self.id).send_sticker(stickerpath, **kwargs)
 
     def send_contact(self, phone_number, first_name, **kwargs):
         return Chat(self.bot, self.id).send_contact(phone_number, first_name, **kwargs)

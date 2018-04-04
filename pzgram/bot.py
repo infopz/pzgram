@@ -20,6 +20,9 @@ class Bot:
         self.processMessage = nf
         self.startFunc = nf
         self.endFunc = nf
+        self.editFunc = nf
+        self.channelPostFunc = nf
+        self.editChannelPostFunc = nf
         # Bot Settings
         self.acceptEdited = False
         self.acceptOlder = False
@@ -112,7 +115,30 @@ class Bot:
                 call(func, possibile_args)
             else:  # For every message that is not a command
                 call(self.processMessage, possibile_args)
-
+        elif "edited_message" in update:
+            if self.editFunc != nf:
+                message = Message(self, update["edited_message"])
+                chat = message.chat
+                possibile_args = {"message": message, "chat": chat, "sender": message.sender,
+                                  "args": message.args, "bot": self}
+                # Call the related function
+                call(self.editFunc, possibile_args)
+        elif "channel_post":
+            if self.channelPostFunc != nf:
+                message = Message(self, update["channel_post"])
+                chat = message.chat
+                possibile_args = {"message": message, "chat": chat,
+                                  "args": message.args, "bot": self}
+                # Call the related function
+                call(self.channelPostFunc, possibile_args)
+        elif "edited_channel_post":
+            if self.editChannelPostFunc != nf:
+                message = Message(self, update["edited_channel_post"])
+                chat = message.chat
+                possibile_args = {"message": message, "chat": chat,
+                                  "args": message.args, "bot": self}
+                # Call the related function
+                call(self.editChannelPostFunc, possibile_args)
     def set_commands(self, command_dict):
         # Used to avoid overwring of default start and help if not included
         for i in command_dict:

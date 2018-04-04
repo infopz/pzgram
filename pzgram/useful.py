@@ -91,6 +91,14 @@ def create_keyboard(keyboard_array, resize=True, one_time=False):
     return keyboard
 
 
+def remove_keyboard():
+    return json.dumps({"remove_keyboard": True})
+
+
+def force_reply():
+    return json.dumps({"force_reply": True})
+
+
 def file_name(path):
     """From path of a file, find the name of that file"""
     # Scroll back path string until he find / or \
