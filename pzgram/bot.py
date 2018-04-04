@@ -24,8 +24,6 @@ class Bot:
         self.channelPostFunc = nf
         self.editChannelPostFunc = nf
         # Bot Settings
-        self.acceptEdited = False
-        self.acceptOlder = False
         self.APITimeout = 100
         # Others
         self.timers = dict()
@@ -118,27 +116,25 @@ class Bot:
         elif "edited_message" in update:
             if self.editFunc != nf:
                 message = Message(self, update["edited_message"])
-                chat = message.chat
-                possibile_args = {"message": message, "chat": chat, "sender": message.sender,
+                possibile_args = {"message": message, "chat": message.chat, "sender": message.sender,
                                   "args": message.args, "bot": self}
                 # Call the related function
                 call(self.editFunc, possibile_args)
-        elif "channel_post":
+        elif "channel_post" in update:
             if self.channelPostFunc != nf:
                 message = Message(self, update["channel_post"])
-                chat = message.chat
-                possibile_args = {"message": message, "chat": chat,
+                possibile_args = {"message": message, "chat": message.chat,
                                   "args": message.args, "bot": self}
                 # Call the related function
                 call(self.channelPostFunc, possibile_args)
-        elif "edited_channel_post":
+        elif "edited_channel_post" in update:
             if self.editChannelPostFunc != nf:
                 message = Message(self, update["edited_channel_post"])
-                chat = message.chat
-                possibile_args = {"message": message, "chat": chat,
+                possibile_args = {"message": message, "chat": message.chat,
                                   "args": message.args, "bot": self}
                 # Call the related function
                 call(self.editChannelPostFunc, possibile_args)
+
     def set_commands(self, command_dict):
         # Used to avoid overwring of default start and help if not included
         for i in command_dict:
