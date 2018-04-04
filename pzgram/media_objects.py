@@ -4,11 +4,17 @@ from .api import *
 class GenericMedia:
     def __init__(self, bot, dict):
         self.bot = bot
-        for i in dict:
-            setattr(self, i, dict[i])
+        for i in self.attirbutes:
+            if i in dict:
+                setattr(self, i, dict[i])
+            else:
+                setattr(self, i, None)
+        # Some media already have file_path
+        if "file_path" in dict:
+            self.file_path = dict["file_path"]
 
     def __str__(self):
-        return "MediaObject" + self.file_id
+        return "MediaObject" + str(self.file_id)
 
     def save(self, path):
         if hasattr(self, "file_path"):
@@ -22,71 +28,101 @@ class GenericMedia:
 
 class Photo(GenericMedia):
     """Extension .jpg .png"""
+    attributes = ["file_id", "width", "height", "file_size"]
 
 
 class Voice(GenericMedia):
     """Extension .ogg"""
-    pass
+    attributes = ["file_id", "duration", "mime_type", "file_size"]
 
 
 class Audio(GenericMedia):
     """Extension .mpeg .mp3"""
-    pass
+    attributes = ["file_id", "duration", "performer", "title", "mime_type", "file_size"]
 
 
 class Video(GenericMedia):
     """Extension .mp4"""
+    attributes = ["file_id", "width", "height", "duration", "thumb", "mime_type", "file_size"]
+
     def __init__(self, bot, dict):
         GenericMedia.__init__(self, bot, dict)
         # Parse thumb as Photo object if exists
-        if hasattr(self, "thumb"):
+        if self.thumb is not None:
             self.thumb = Photo(bot, self.thumb)
 
 
 class VideoNote(GenericMedia):
     """Rounded Square .mp4 Video"""
+    attributes = ["file_id", "lenght", "duration", "mime_type", "file_size"]
+
     def __init__(self, bot, dict):
         GenericMedia.__init__(self, bot, dict)
         # Parse thumb as Photo object if exists
-        if hasattr(self, "thumb"):
+        if self.thumb is not None:
             self.thumb = Photo(bot, self.thumb)
 
 
 class Sticker(GenericMedia):
-    "Exstension .webp"
+    """Exstension .webp"""
+    attributes = ["file_id", "width", "height", "thumb", "emoji", "set_name", "mask_position", "file_size"]
+
     def __init__(self, bot, dict):
         GenericMedia.__init__(self, bot, dict)
         # Parse thumb as Photo object if exists
-        if hasattr(self, "thumb"):
+        if self.thumb is not None:
             self.thumb = Photo(bot, self.thumb)
 
 
 class Document(GenericMedia):
+    """Generic Document"""
+    attributes = ["file_id", "thumb", "file_name", "mime_type", "file_size"]
+
     def __init__(self, bot, dict):
         GenericMedia.__init__(self, bot, dict)
         # Parse thumb as Photo object if exists
-        if hasattr(self, "thumb"):
+        if self.thumb is not None:
             self.thumb = Photo(bot, self.thumb)
 
 
 class Contact:
+
+    attributes = ["phone_number", "first_name", "last_name", "user_id"]
+
     def __init__(self, bot, contact_dict):
         self.bot = bot
-        for i in contact_dict:
-            setattr(self, i, contact_dict[i])
+        for i in self.attirbutes:
+            if i in dict:
+                setattr(self, i, contact_dict[i])
+            else:
+                setattr(self, i, None)
+
+    def __str__(self):
+        return "ContactObject" + str(self.first_name)
 
 
 class Location:
     def __init__(self, bot, location_dict):
         self.bot = bot
-        for i in location_dict:
-            setattr(self, i, location_dict[i])
+        self.longitude = location_dict["longitude"]
+        self.latitude = location_dict["latitude"]
+
+    def __str__(self):
+        return "LocationObject{" + str(self.latitude) + "|" + str(self.longitude) + "}"
 
 
 class Venue:
+
+    attibutes = ["location", "title", "address", "foursquare_id"]
+
     def __init__(self, bot, venue_dict):
         self.bot = bot
-        for i in venue_dict:
-            setattr(self, i, venue_dict[i])
+        for i in self.attirbutes:
+            if i in dict:
+                setattr(self, i, venue_dict[i])
+            else:
+                setattr(self, i, None)
         self.location = Location(bot, venue_dict["location"])
 
+    def __str__(self):
+        return "VenueObject" + self.title

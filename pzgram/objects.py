@@ -1,16 +1,22 @@
 import os
 
 from .parsing import message_types, parse_forward_reply
-from .useful import message_all_attributes as message_all
-from .useful import chat_all_attributes as chat_all
-from .useful import user_all_attirbutes as user_all
-from .useful import chat_member_all_attributes as chat_mem_all
 from .useful import *
 
 from .media_objects import *
 
 
 class Message:
+
+    attributes = ["message_id", "sender", "date", "chat", "args",
+                  "forward_from", "forward_from_chat", "forward_from_message_id", "forward_from_signature",
+                  "reply_to_message", "edit_date", "media_group_id", "author_signature",
+                  "text", "entities", "caption_entities", "audio", "document", "game", "photo", "sticker", "video",
+                  "voice", "video_note", "caption", "contact", "location", "venue",
+                  "new_chat_members", "left_chat_member", "new_chat_title", "new_chat_photo", "delete_chat_photo",
+                  "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_from_chat_id",
+                  "migrate_to_chat_id", "pinned_message"]  # TODO: paymets
+
     def __init__(self, bot, message_dict):
         self.bot = bot
         # Find the type of this message
@@ -23,7 +29,7 @@ class Message:
         # Parse other things
         message_dict = parse_forward_reply(message_dict, bot)
         # Add all possbile attributes to message_dict and set to None
-        for i in message_all:
+        for i in self.attributes:
             if i not in message_dict:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
@@ -105,10 +111,14 @@ class Message:
 
 
 class Chat:
+
+    attributes = ["id", "type", "title", "username", "first_name", "last_name", "all_members_are_administrator",
+                  "photo", "description", "invite_link", "pinned_message", "sticker_set_name", "can_set_sticker_set"]
+
     def __init__(self, bot, id, chat_dict=dict()):
         self.bot = bot
         # For all attributes, check if is in the dict, otherwise set to None
-        for i in chat_all:
+        for i in self.attributes:
             if i in chat_dict:
                 setattr(self, i, chat_dict[i])
             else:
@@ -137,7 +147,6 @@ class Chat:
         return Chat(self.bot, chat["id"], chat)
 
     def send(self, text, parse_mode="markdown", preview=True, notification=True, reply_to=None, reply_markup=None):
-        # TODO: Check Type Text
         param = {
             "chat_id": self.id,
             "text": text,
@@ -180,163 +189,267 @@ class Chat:
         param = {"chat_id": self.id, "action": action}
         return api_request(self.bot, "sendChatAction", param)
 
-    def send_photo(self, photopath, caption=None, parse_mode=None, notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(photopath):
-            raise FileNotFoundError("File " + photopath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(photopath)
-        file = {
-            "photo": (name, open(photopath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "caption": caption,
-            "parse_mode": parse_mode,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendPhoto", param, file))
+    def send_photo(self, photo, caption=None, parse_mode=None, notification=True, reply_id=None, reply_markup=None):
+        if isinstance(photo, Photo):
+            param = {
+                "chat_id": self.id,
+                "photo": photo.file_id,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendPhoto", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(photo):
+                raise FileNotFoundError("File " + photo + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(photo)
+            file = {
+                "photo": (name, open(photo, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendPhoto", param, file))
 
-    def send_voice(self, voicepath, duration=None, caption=None, parse_mode=None,
+    def send_voice(self, voice, duration=None, caption=None, parse_mode=None,
                    notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(voicepath):
-            raise FileNotFoundError("File " + voicepath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(voicepath)
-        file = {
-            "voice": (name, open(voicepath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "duration": duration,
-            "caption": caption,
-            "parse_mode": parse_mode,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendVoice", param, file))
+        if isinstance(voice, Voice):
+            param = {
+                "chat_id": self.id,
+                "voice": voice.file_id,
+                "duration": voice.duration,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVoice", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(voice):
+                raise FileNotFoundError("File " + voice + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(voice)
+            file = {
+                "voice": (name, open(voice, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "duration": duration,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVoice", param, file))
 
-    def send_audio(self, audiopath, duration=None, performer=None, title=None, caption=None, parse_mode=None,
+    def send_audio(self, audio, duration=None, performer=None, title=None, caption=None, parse_mode=None,
                    notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(audiopath):
-            raise FileNotFoundError("File " + audiopath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(audiopath)
-        file = {
-            "audio": (name, open(audiopath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "duration": duration,
-            "performer": performer,
-            "title": title,
-            "caption": caption,
-            "parse_mode": parse_mode,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendAudio", param, file))
+        if isinstance(audio, Audio):
+            param = {
+                "chat_id": self.id,
+                "audio": audio.file_id,
+                "duration": audio.duration,
+                "performer": audio.performer,
+                "title": audio.title,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendAudio", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(audio):
+                raise FileNotFoundError("File " + audio + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(audio)
+            file = {
+                "audio": (name, open(audio, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "duration": duration,
+                "performer": performer,
+                "title": title,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendAudio", param, file))
 
-    def send_document(self, documentpath, caption=None, parse_mode=None,
+    def send_document(self, document, caption=None, parse_mode=None,
                       notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(documentpath):
-            raise FileNotFoundError("File " + documentpath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(documentpath)
-        file = {
-            "document": (name, open(documentpath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "caption": caption,
-            "parse_mode": parse_mode,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendDocument", param, file))
+        if isinstance(document, Document):
+            param = {
+                "chat_id": self.id,
+                "document": document.file_id,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendDocument", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(document):
+                raise FileNotFoundError("File " + document + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(document)
+            file = {
+                "document": (name, open(document, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendDocument", param, file))
 
-    def send_video(self, videopath, duration=None, width=None, height=None, caption=None, parse_mode=None,
+    def send_video(self, video, duration=None, width=None, height=None, caption=None, parse_mode=None,
                    support_streaming=None, notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(videopath):
-            raise FileNotFoundError("File " + videopath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(videopath)
-        file = {
-            "video": (name, open(videopath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "duration": duration,
-            "width": width,
-            "height": height,
-            "caption": caption,
-            "parse_mode": parse_mode,
-            "support_straming": support_streaming,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendVideo", param, file))
+        if isinstance(video, Video):
+            param = {
+                "chat_id": self.id,
+                "video": video,
+                "duration": video.duration,
+                "width": video.width,
+                "height": video.height,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "support_straming": support_streaming,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVideo", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(video):
+                raise FileNotFoundError("File " + video + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(video)
+            file = {
+                "video": (name, open(video, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "duration": duration,
+                "width": width,
+                "height": height,
+                "caption": caption,
+                "parse_mode": parse_mode,
+                "support_straming": support_streaming,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVideo", param, file))
 
-    def send_videonote(self, videonotepath, duration=None, length=None,
+    def send_videonote(self, videonote, duration=None, length=None,
                        notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(videonotepath):
-            raise FileNotFoundError("File " + videonotepath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(videonotepath)
-        file = {
-            "video_note": (name, open(videonotepath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "duration": duration,
-            "length": length,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendVideoNote", param, file))
+        if isinstance(videonote, VideoNote):
+            param = {
+                "chat_id": self.id,
+                "video_note": videonote.file_id,
+                "duration": videonote.duration,
+                "length": videonote.length,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVideoNote", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(videonote):
+                raise FileNotFoundError("File " + videonote + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(videonote)
+            file = {
+                "video_note": (name, open(videonote, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "duration": duration,
+                "length": length,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVideoNote", param, file))
 
-    def send_sticker(self, stickerpath, notification=True, reply_id=None, reply_markup=None):
-        # Check if file exists
-        if not os.path.isfile(stickerpath):
-            raise FileNotFoundError("File " + stickerpath + " not exists or is a folder")
-        # Find the name of that file from his path
-        name = file_name(stickerpath)
-        file = {
-            "sticker": (name, open(stickerpath, "rb"))
-        }
-        param = {
-            "chat_id": self.id,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendSticker", param, file))
+    def send_sticker(self, sticker, notification=True, reply_id=None, reply_markup=None):
+        if isinstance(sticker, Sticker):
+            param = {
+                "chat_id": self.id,
+                "sticker": sticker.file_id,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendSticker", param))
+        else:
+            # Check if file exists
+            if not os.path.isfile(sticker):
+                raise FileNotFoundError("File " + sticker + " not exists or is a folder")
+            # Find the name of that file from his path
+            name = file_name(sticker)
+            file = {
+                "sticker": (name, open(sticker, "rb"))
+            }
+            param = {
+                "chat_id": self.id,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendSticker", param, file))
 
-    def send_contact(self, phone_number, first_name, last_name=None, user_id=None,
+    def send_contact(self, phone_number, first_name=None, last_name=None, user_id=None,
                      notification=True, reply_id=None, reply_markup=None):
-        param = {
-            "chat_id": self.id,
-            "phone_number": phone_number,
-            "first_name": first_name,
-            "last_name": last_name,
-            "user_id": user_id,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendContact", param))
+        if isinstance(phone_number, Contact):
+            contact = phone_number
+            param = {
+                "chat_id": self.id,
+                "phone_number": contact.phone_number,
+                "first_name": contact.first_name,
+                "last_name": contact.last_name,
+                "user_id": contact.user_id,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendContact", param))
+        else:
+            param = {
+                "chat_id": self.id,
+                "phone_number": phone_number,
+                "first_name": first_name,
+                "last_name": last_name,
+                "user_id": user_id,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendContact", param))
 
     def send_location(self, latitude, longitude, live_period=None, notification=True, reply_id=None, reply_markup=None):
         param = {
@@ -350,20 +463,35 @@ class Chat:
         }
         return Message(self.bot, api_request(self.bot, "sendLocation", param))
 
-    def send_venue(self, latitude, longitude, title, address, foursquare_id=None,
+    def send_venue(self, latitude, longitude=None, title=None, address=None, foursquare_id=None,
                    notification=True, reply_id=None, reply_markup=None):
-        param = {
-            "chat_id": self.id,
-            "latitude": latitude,
-            "longitude": longitude,
-            "title": title,
-            "address": address,
-            "foursquare_id": foursquare_id,
-            "disable_notification": not notification,
-            "reply_to_message_id": reply_id,
-            "reply_markup": reply_markup
-        }
-        return Message(self.bot, api_request(self.bot, "sendVenue", param))
+        if isinstance(latitude, Venue):
+            venue = latitude
+            param = {
+                "chat_id": self.id,
+                "latitude": venue.location.latitude,
+                "longitude": venue.location.longitude,
+                "title": venue.title,
+                "address": venue.address,
+                "foursquare_id": venue.foursquare_id,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVenue", param))
+        else:
+            param = {
+                "chat_id": self.id,
+                "latitude": latitude,
+                "longitude": longitude,
+                "title": title,
+                "address": address,
+                "foursquare_id": foursquare_id,
+                "disable_notification": not notification,
+                "reply_to_message_id": reply_id,
+                "reply_markup": reply_markup
+            }
+            return Message(self.bot, api_request(self.bot, "sendVenue", param))
 
     def kick_user(self, user_id, until_date=None):
         if self.type == "private":
@@ -485,10 +613,13 @@ class Chat:
 
 
 class User:
+
+    attirbutes = ["id", "is_bot", "first_name", "last_name", "username", "language_code"]
+
     def __init__(self, bot, user_dict):
         self.bot = bot
         # For all attributes, check if is in the dict, otherwise set to None
-        for i in user_all:
+        for i in self.attirbutes:
             if i in user_dict:
                 setattr(self, i, user_dict[i])
             else:
@@ -557,12 +688,20 @@ class User:
 
 
 class ChatMember(User):
+
+    attributes = ["status", "until_date", "can_be_edited", "can_change_info", "can_post_messages", "can_edit_messages",
+                  "can_delete_messages", "can_invite_users", "can_restrict_members", "can_pin_messages",
+                  "can_promote_members", "can_send_messages", "can_send_media_messages", "can_add_web_page_previews"]
+
     def __init__(self, bot, user_dict):
         # Call the User init, and after, set the attributes of a ChatMember
         User.__init__(self, bot, user_dict["user"])
         user_dict.pop("user", None)
-        for i in chat_mem_all:
+        for i in self.attirbutes:
             if i in user_dict:
                 setattr(self, i, user_dict[i])
             else:
                 setattr(self, i, None)
+
+    def __str__(self):
+        return "ChatMemberObject" + str(self.id)
