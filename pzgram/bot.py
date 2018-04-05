@@ -5,6 +5,7 @@ from .objects import *
 from .useful import notafunction as nf
 from .useful import *
 from .exceptions import *
+from .inline import CallbackQuery
 
 
 class Bot:
@@ -23,12 +24,15 @@ class Bot:
         self.editFunc = nf
         self.channelPostFunc = nf
         self.editChannelPostFunc = nf
+        self.callBackFunc = nf
         # Bot Settings
         self.APITimeout = 100
         # Others
         self.timers = dict()
         self.commands = {"start": default_start, "help": default_help}
+        self.query = dict()
         self.next_func = dict()
+        self.next_query = dict()
         print(time_for_log() + "Bot Created")
 
     def run(self):
@@ -94,51 +98,66 @@ class Bot:
         if "message" in update:
             message = Message(self, update["message"])
             chat = message.chat
-            possibile_args = {"message": message, "chat": chat, "sender": message.sender,
-                              "args": message.args, "bot": self}
+            possible_args = {"message": message, "chat": chat, "sender": message.sender,
+                             "args": message.args, "bot": self}
             # Call processAll function passing all the possible args
             # If Function return something, stop running this update
-            if call(self.processAll, possibile_args):
+            if call(self.processAll, possible_args):
                 return
             if message.type == "command":
-                try:
-                    call(self.commands[message.command], possibile_args)
-                except KeyError:
+                if message.command in self.commands:
+                    call(self.commands[message.command], possible_args)
+                else:
                     # If command is not in list, send message with /help
-                    call(command_not_found, possibile_args)
+                    call(command_not_found, possible_args)
                     return
             elif chat.id in self.next_func:
                 # Call next func if it setted for that chat.id
                 func = self.next_func.pop(chat.id)
-                call(func, possibile_args)
+                call(func, possible_args)
             else:  # For every message that is not a command
-                call(self.processMessage, possibile_args)
+                call(self.processMessage, possible_args)
         elif "edited_message" in update:
             if self.editFunc != nf:
                 message = Message(self, update["edited_message"])
-                possibile_args = {"message": message, "chat": message.chat, "sender": message.sender,
-                                  "args": message.args, "bot": self}
+                possible_args = {"message": message, "chat": message.chat, "sender": message.sender,
+                                 "args": message.args, "bot": self}
                 # Call the related function
-                call(self.editFunc, possibile_args)
+                call(self.editFunc, possible_args)
         elif "channel_post" in update:
             if self.channelPostFunc != nf:
                 message = Message(self, update["channel_post"])
-                possibile_args = {"message": message, "chat": message.chat,
-                                  "args": message.args, "bot": self}
+                possible_args = {"message": message, "chat": message.chat,
+                                 "args": message.args, "bot": self}
                 # Call the related function
-                call(self.channelPostFunc, possibile_args)
+                call(self.channelPostFunc, possible_args)
         elif "edited_channel_post" in update:
             if self.editChannelPostFunc != nf:
                 message = Message(self, update["edited_channel_post"])
-                possibile_args = {"message": message, "chat": message.chat,
-                                  "args": message.args, "bot": self}
+                possible_args = {"message": message, "chat": message.chat,
+                                 "args": message.args, "bot": self}
                 # Call the related function
-                call(self.editChannelPostFunc, possibile_args)
+                call(self.editChannelPostFunc, possible_args)
+        elif "callback_query" in update:
+            # Parse CallbackQuery
+            query = CallbackQuery(self, update["callback_query"])
+            possible_args = {"query": query, "message": query.message,
+                             "sender": query.sender, "data": query.data}
+            # If is in the query dict
+            if query.data is not None and query.data in self.query:
+                call(self.query[query.data], possible_args)
+            # Otherwise
+            elif self.callBackFunc != nf:
+                call(self.callBackFunc, possible_args)
 
     def set_commands(self, command_dict):
         # Used to avoid overwring of default start and help if not included
         for i in command_dict:
             self.commands[i] = command_dict[i]
+
+    def set_query(self, query_dict):
+        for i in query_dict:
+            self.query[i] = query_dict[i]
 
     def run_timer(self, timer_function, delay):
         while True:
