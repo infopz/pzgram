@@ -96,7 +96,7 @@ class Bot:
     def run_update(self, update):
         # If the update contains a Message
         if "message" in update:
-            message = Message(self, update["message"])
+            message = Message(self, update["message"]["message_id"], update["message"])
             chat = message.chat
             possible_args = {"message": message, "chat": chat, "sender": message.sender,
                              "args": message.args, "bot": self}
@@ -119,21 +119,21 @@ class Bot:
                 call(self.processMessage, possible_args)
         elif "edited_message" in update:
             if self.editFunc != nf:
-                message = Message(self, update["edited_message"])
+                message = Message(self, update["edited_message"]["message_id"], update["edited_message"])
                 possible_args = {"message": message, "chat": message.chat, "sender": message.sender,
                                  "args": message.args, "bot": self}
                 # Call the related function
                 call(self.editFunc, possible_args)
         elif "channel_post" in update:
             if self.channelPostFunc != nf:
-                message = Message(self, update["channel_post"])
+                message = Message(self, update["channel_post"]["message_id"], update["channel_post"])
                 possible_args = {"message": message, "chat": message.chat,
                                  "args": message.args, "bot": self}
                 # Call the related function
                 call(self.channelPostFunc, possible_args)
         elif "edited_channel_post" in update:
             if self.editChannelPostFunc != nf:
-                message = Message(self, update["edited_channel_post"])
+                message = Message(self, update["edited_channel_post"]["message_id"], update["edited_channel_post"])
                 possible_args = {"message": message, "chat": message.chat,
                                  "args": message.args, "bot": self}
                 # Call the related function

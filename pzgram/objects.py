@@ -8,7 +8,7 @@ from .media_objects import *
 
 class Message:
 
-    attributes = ["message_id", "sender", "date", "chat", "args",
+    attributes = ["id", "sender", "date", "chat", "args",
                   "forward_from", "forward_from_chat", "forward_from_message_id", "forward_from_signature",
                   "reply_to_message", "edit_date", "media_group_id", "author_signature",
                   "text", "entities", "caption_entities", "audio", "document", "game", "photo", "sticker", "video",
@@ -17,7 +17,7 @@ class Message:
                   "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_from_chat_id",
                   "migrate_to_chat_id", "pinned_message"]  # TODO: paymets
 
-    def __init__(self, bot, message_dict):
+    def __init__(self, bot, id, message_dict=dict()):
         self.bot = bot
         # Find the type of this message
         for t in message_types:
@@ -34,11 +34,11 @@ class Message:
                 message_dict[i] = None
         # Delete attribute from and replace with sender
         if "from" in message_dict:
-            message_dict["sender"] = User(bot, message_dict["from"])
+            message_dict["sender"] = User(bot, message_dict["from"]["id"], message_dict["from"])
             message_dict.pop("from")
         message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
-        # Change message_id to id
-        message_dict["id"] = message_dict.pop("message_id")
+        # Set Message ID
+        message_dict["id"] = id
         # Memorize all attributes
         for i in message_dict:
             setattr(self, i, message_dict[i])
@@ -56,7 +56,8 @@ class Message:
             "message_id": self.id,
             "disable_notification": not notification
         }
-        return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
+        r = api_request(self.bot, "forwardMessage", param=param)
+        return Message(self.bot, r["message_id"], r)
 
     def delete(self):
         param = {
@@ -74,7 +75,39 @@ class Message:
             "disable_web_page_preview": preview,
             "reply_markup": reply_markup
         }
-        return Message(self.bot, api_request(self.bot, "editMessageText", p))
+        r = api_request(self.bot, "editMessageText", p)
+        # Check if the response is True or Message object
+        if r == True:
+            return True
+        else:
+            return Message(self.bot, r["message_id"], r)
+
+    def edit_live(self, latitude, longitude, reply_markup=None):
+        p = {
+            "chat_id": self.chat.id,
+            "message_id": self.id,
+            "latitude": latitude,
+            "longitude": longitude,
+            "reply_markup": reply_markup
+        }
+        r = api_request(self.bot, "editMessageLiveLocation", p)
+        # Check if the response is True or Message object
+        if r == True:
+            return True
+        else:
+            return Message(self.bot, r["message_id"], r)
+
+    def stop_live(self, reply_markup=None):
+        p = {
+            "chat_id": self.chat.id,
+            "message_id": self.id,
+            "reply_markup": reply_markup
+        }
+        r = api_request(self.bot, "stopMessageLiveLocation", p)
+        if r == True:
+            return True
+        else:
+            return Message(self.bot, r["message_id"], r)
 
     def reply(self, text, **kwargs):
         return self.chat.send(text, reply_to=self.id, **kwargs)
@@ -100,14 +133,14 @@ class Message:
     def reply_sticker(self, stickerpath, **kwargs):
         return self.chat.send_sticker(stickerpath, reply_id=self.id, **kwargs)
 
-    def reply_contact(self, phone_number, first_name, **kwargs):
-        return self.chat.send_contact(phone_number, first_name, reply_id=self.id, **kwargs)
+    def reply_contact(self, phone_number, *args, **kwargs):
+        return self.chat.send_contact(phone_number, *args, reply_id=self.id, **kwargs)
 
     def reply_location(self, latitude, longitude, **kwargs):
         return self.chat.send_location(latitude, longitude, reply_id=self.id, **kwargs)
 
-    def reply_venue(self, latitude, longitude, title, address, **kwargs):
-        return self.chat.send_venue(latitude, longitude, title, address, reply_id=self.id, **kwargs)
+    def reply_venue(self, latitude, *args, **kwargs):
+        return self.chat.send_venue(latitude, *args, reply_id=self.id, **kwargs)
 
 
 class Chat:
@@ -117,16 +150,17 @@ class Chat:
 
     def __init__(self, bot, id, chat_dict=dict()):
         self.bot = bot
+        chat_dict["id"] = id
         # For all attributes, check if is in the dict, otherwise set to None
         for i in self.attributes:
             if i in chat_dict:
                 setattr(self, i, chat_dict[i])
             else:
                 setattr(self, i, None)
-        self.id = id
         # Parse pinned_message and photo if they are not None (only returned in getChat)
         if self.pinned_message is not None:
-            self.pinned_message = Message(bot, self.pinned_message)
+            self.pinned_message = Message(bot, self.pinned_message["id"], self.pinned_message)
+            # FIXME: Check
         if self.photo is not None:
             # TODO
             pass
@@ -156,7 +190,8 @@ class Chat:
             "reply_to_message_id": reply_to,
             "reply_markup": reply_markup
         }
-        return Message(self.bot, api_request(self.bot, "sendMessage", param))
+        r = api_request(self.bot, "sendMessage", param)
+        return Message(self.bot, r["message_id"], r)
 
     def forward_message(self, message_id, chat_id, notification=True):
         param = {
@@ -165,7 +200,8 @@ class Chat:
             "message_id": message_id,
             "disable_notification": not notification
         }
-        return Message(self.bot, api_request(self.bot, "forwardMessage", param=param))
+        r = api_request(self.bot, "forwardMessage", param=param)
+        return Message(self.bot, r["message_id"], r)
 
     def delete_message(self, message_id):
         param = {
@@ -183,7 +219,12 @@ class Chat:
             "disable_web_page_preview": preview,
             "reply_markup": reply_markup
         }
-        return Message(self.bot, api_request(self.bot, "editMessageText", p))
+        r = api_request(self.bot, "editMessageText", p)
+        # Check if the response is True or Message object
+        if r == True:
+            return True
+        else:
+            return Message(self.bot, r["message_id"], r)
 
     def send_action(self, action):
         param = {"chat_id": self.id, "action": action}
@@ -200,7 +241,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendPhoto", param))
+            r = api_request(self.bot, "sendPhoto", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(photo):
@@ -218,7 +260,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendPhoto", param, file))
+            r = api_request(self.bot, "sendPhoto", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_voice(self, voice, duration=None, caption=None, parse_mode=None,
                    notification=True, reply_id=None, reply_markup=None):
@@ -233,7 +276,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVoice", param))
+            r = api_request(self.bot, "sendVoice", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(voice):
@@ -252,7 +296,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVoice", param, file))
+            r = api_request(self.bot, "sendVoice", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_audio(self, audio, duration=None, performer=None, title=None, caption=None, parse_mode=None,
                    notification=True, reply_id=None, reply_markup=None):
@@ -269,7 +314,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendAudio", param))
+            r = api_request(self.bot, "sendAudio", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(audio):
@@ -290,7 +336,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendAudio", param, file))
+            r = api_request(self.bot, "sendAudio", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_document(self, document, caption=None, parse_mode=None,
                       notification=True, reply_id=None, reply_markup=None):
@@ -304,7 +351,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendDocument", param))
+            r = api_request(self.bot, "sendDocument", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(document):
@@ -322,7 +370,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendDocument", param, file))
+            r = api_request(self.bot, "sendDocument", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_video(self, video, duration=None, width=None, height=None, caption=None, parse_mode=None,
                    support_streaming=None, notification=True, reply_id=None, reply_markup=None):
@@ -340,7 +389,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVideo", param))
+            r = api_request(self.bot, "sendVideo", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(video):
@@ -362,7 +412,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVideo", param, file))
+            r = api_request(self.bot, "sendVideo", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_videonote(self, videonote, duration=None, length=None,
                        notification=True, reply_id=None, reply_markup=None):
@@ -376,7 +427,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVideoNote", param))
+            r = api_request(self.bot, "sendVideoNote", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(videonote):
@@ -394,7 +446,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVideoNote", param, file))
+            r = api_request(self.bot, "sendVideoNote", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_sticker(self, sticker, notification=True, reply_id=None, reply_markup=None):
         if isinstance(sticker, Sticker):
@@ -405,7 +458,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendSticker", param))
+            r = api_request(self.bot, "sendSticker", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             # Check if file exists
             if not os.path.isfile(sticker):
@@ -421,7 +475,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendSticker", param, file))
+            r = api_request(self.bot, "sendSticker", param, file)
+            return Message(self.bot, r["message_id"], r)
 
     def send_contact(self, phone_number, first_name=None, last_name=None, user_id=None,
                      notification=True, reply_id=None, reply_markup=None):
@@ -437,7 +492,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendContact", param))
+            r = api_request(self.bot, "sendContact", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             param = {
                 "chat_id": self.id,
@@ -449,7 +505,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendContact", param))
+            r = api_request(self.bot, "sendContact", param)
+            return Message(self.bot, r["message_id"], r)
 
     def send_location(self, latitude, longitude, live_period=None, notification=True, reply_id=None, reply_markup=None):
         param = {
@@ -461,7 +518,8 @@ class Chat:
             "reply_to_message_id": reply_id,
             "reply_markup": reply_markup
         }
-        return Message(self.bot, api_request(self.bot, "sendLocation", param))
+        r = api_request(self.bot, "sendLocation", param)
+        return Message(self.bot, r["message_id"], r)
 
     def send_venue(self, latitude, longitude=None, title=None, address=None, foursquare_id=None,
                    notification=True, reply_id=None, reply_markup=None):
@@ -478,7 +536,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVenue", param))
+            r = api_request(self.bot, "sendVenue", param)
+            return Message(self.bot, r["message_id"], r)
         else:
             param = {
                 "chat_id": self.id,
@@ -491,7 +550,8 @@ class Chat:
                 "reply_to_message_id": reply_id,
                 "reply_markup": reply_markup
             }
-            return Message(self.bot, api_request(self.bot, "sendVenue", param))
+            r = api_request(self.bot, "sendVenue", param)
+            return Message(self.bot, r["message_id"], r)
 
     def kick_user(self, user_id, until_date=None):
         if self.type == "private":
@@ -584,14 +644,14 @@ class Chat:
     def unpin_message(self):
         if self.type == "private" or self.type == "group":
             raise WrongChatTypeError("unPinMessage can only be used in supergroups or channels")
-        api_request(self.bot, "unpinChatMessage", {"chat_id": self.id})
+        return api_request(self.bot, "unpinChatMessage", {"chat_id": self.id})
 
     def leave(self):
         if self.type == "private":
             raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
-        api_request(self.bot, "leaveChat", {"chat_id": self.id})
+        return api_request(self.bot, "leaveChat", {"chat_id": self.id})
 
-    def get_administrator(self):
+    def get_admins(self):
         if self.type == "private":
             raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
         # Return a list of ChatMember objects, each rappresenting a single admin
@@ -601,7 +661,7 @@ class Chat:
             admins.append(ChatMember(self.bot, u))
         return admins
 
-    def get_member_count(self):
+    def get_members_count(self):
         if self.type == "private":
             raise WrongChatTypeError("LeaveChat can only be used in groups or channels")
         return api_request(self.bot, "getChatMembersCount", {"chat_id": self.id})
@@ -616,8 +676,9 @@ class User:
 
     attirbutes = ["id", "is_bot", "first_name", "last_name", "username", "language_code"]
 
-    def __init__(self, bot, user_dict):
+    def __init__(self, bot, id, user_dict=dict()):
         self.bot = bot
+        user_dict["id"] = id
         # For all attributes, check if is in the dict, otherwise set to None
         for i in self.attirbutes:
             if i in user_dict:
@@ -677,14 +738,14 @@ class User:
     def send_sticker(self, stickerpath, **kwargs):
         return Chat(self.bot, self.id).send_sticker(stickerpath, **kwargs)
 
-    def send_contact(self, phone_number, first_name, **kwargs):
-        return Chat(self.bot, self.id).send_contact(phone_number, first_name, **kwargs)
+    def send_contact(self, phone_number, *args, **kwargs):
+        return Chat(self.bot, self.id).send_contact(phone_number, *args, **kwargs)
 
     def send_location(self, latitude, longitude, **kwargs):
         return Chat(self.bot, self.id).send_location(latitude, longitude, **kwargs)
 
-    def send_venue(self, latitude, longitude, title, address, **kwargs):
-        return Chat(self.bot, self.id).send_location(latitude, longitude, title, address, **kwargs)
+    def send_venue(self, latitude, *args, **kwargs):
+        return Chat(self.bot, self.id).send_location(latitude, *args, **kwargs)
 
 
 class ChatMember(User):
@@ -695,7 +756,7 @@ class ChatMember(User):
 
     def __init__(self, bot, user_dict):
         # Call the User init, and after, set the attributes of a ChatMember
-        User.__init__(self, bot, user_dict["user"])
+        User.__init__(self, bot, user_dict["user"]["id"], user_dict["user"])
         user_dict.pop("user", None)
         for i in self.attirbutes:
             if i in user_dict:

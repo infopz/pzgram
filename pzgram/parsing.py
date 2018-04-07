@@ -6,13 +6,16 @@ from .media_objects import *
 def parse_forward_reply(message_dict, bot):
     if "forward_from" in message_dict:
         from .objects import User
-        message_dict["forward_from"] = User(bot, message_dict["forward_from"])
+        message_dict["forward_from"] = \
+            User(bot, message_dict["forward_from"]["id"], message_dict["forward_from"])
     if "forward_from_chat" in message_dict:
         from .objects import Chat
-        message_dict["forward_from_chat"] = Chat(bot, message_dict["forward_from"])
+        message_dict["forward_from_chat"] = \
+            Chat(bot, message_dict["forward_from_chat"]["id"], message_dict["forward_from_chat"])
     if "reply_to_message" in message_dict:
         from .objects import Message
-        message_dict["reply_to_message"] = Message(bot, message_dict["reply_to_message"])
+        message_dict["reply_to_message"] = \
+            Message(bot, message_dict["reply_to_message"]["message_id"], message_dict["reply_to_message"])
     return message_dict
 
 
@@ -91,7 +94,7 @@ def parse_new_user(message_dict, bot):
     new_users = []
     # Convert all dict in User object
     for u in message_dict["new_chat_members"]:
-        new_users.append(User(bot, u))
+        new_users.append(User(bot, u["id"], u))
     message_dict["new_chat_members"] = new_users
     # Delete useless keys
     message_dict.pop("new_chat_participant", None)
@@ -101,7 +104,8 @@ def parse_new_user(message_dict, bot):
 
 def parse_left_user(message_dict, bot):
     from .objects import User
-    message_dict["left_chat_member"] = User(bot, message_dict["left_chat_member"])
+    message_dict["left_chat_member"] = \
+        User(bot, message_dict["left_chat_member"]["id"], message_dict["left_chat_member"])
     message_dict.pop("left_chat_participant", None)
     return message_dict
 
@@ -116,7 +120,8 @@ def parse_new_chat_photo(message_dict, bot):
 
 def parse_pinned_message(message_dict, bot):
     from .objects import Message
-    message_dict["pinned_message"] = Message(bot, message_dict["pinned_message"])
+    message_dict["pinned_message"] = \
+        Message(bot, message_dict["pinned_message"]["message_id"], message_dict["pinned_message"])
     return message_dict
 
 

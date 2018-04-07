@@ -16,10 +16,12 @@ class CallbackQuery:
             else:
                 setattr(self, i, None)
         # Parse Sender
-        self.sender = User(bot, callback_dict.pop("from", None))
+        s = callback_dict.pop("from")
+        self.sender = User(bot, s["id"], s)
         # Parse Message if exists
         try:
-            self.message = Message(self.bot, callback_dict.pop("message"))
+            m = callback_dict.pop("message")
+            self.message = Message(self.bot, m["message_id"], m)
         except KeyError:
             self.message = None
 
