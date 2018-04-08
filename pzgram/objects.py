@@ -15,7 +15,7 @@ class Message:
                   "voice", "video_note", "caption", "contact", "location", "venue",
                   "new_chat_members", "left_chat_member", "new_chat_title", "new_chat_photo", "delete_chat_photo",
                   "group_chat_created", "supergroup_chat_created", "channel_chat_created", "migrate_from_chat_id",
-                  "migrate_to_chat_id", "pinned_message"]  # TODO: paymets
+                  "migrate_to_chat_id", "pinned_message"]
 
     def __init__(self, bot, id, message_dict=dict()):
         self.bot = bot
@@ -128,7 +128,7 @@ class Message:
         return self.chat.send_video(videopath, reply_id=self.id, **kwargs)
 
     def reply_videonote(self, videonotepath, **kwargs):
-        return self.chat.send_video(videonotepath, reply_id=self.id, **kwargs)
+        return self.chat.send_videonote(videonotepath, reply_id=self.id, **kwargs)
 
     def reply_sticker(self, stickerpath, **kwargs):
         return self.chat.send_sticker(stickerpath, reply_id=self.id, **kwargs)
@@ -159,11 +159,12 @@ class Chat:
                 setattr(self, i, None)
         # Parse pinned_message and photo if they are not None (only returned in getChat)
         if self.pinned_message is not None:
-            self.pinned_message = Message(bot, self.pinned_message["id"], self.pinned_message)
-            # FIXME: Check
+            self.pinned_message = Message(bot, self.pinned_message["message_id"], self.pinned_message)
         if self.photo is not None:
-            # TODO
-            pass
+            # Translate 2 file_id to 2 PhotoObject
+            small_photo_dict = {"file_id": self.photo["small_file_id"], "width": 160, "height": 160}
+            big_photo_dict = {"file_id": self.photo["big_file_id"], "width": 640, "height": 640}
+            self.photo = [Photo(self.bot, small_photo_dict), Photo(self.bot, big_photo_dict)]
 
     def __str__(self):
         if self.type == "private":
@@ -733,7 +734,7 @@ class User:
         return Chat(self.bot, self.id).send_video(videopath, **kwargs)
 
     def send_videonote(self, videonotepath, **kwargs):
-        return Chat(self.bot, self.id).send_video(videonotepath, **kwargs)
+        return Chat(self.bot, self.id).send_videonote(videonotepath, **kwargs)
 
     def send_sticker(self, stickerpath, **kwargs):
         return Chat(self.bot, self.id).send_sticker(stickerpath, **kwargs)

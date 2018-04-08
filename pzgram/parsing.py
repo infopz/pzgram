@@ -25,6 +25,7 @@ def df(message_dict, bot):
 
 
 def parse_text(message_dict, bot):
+    # Check if text message is a command
     if message_dict["text"].startswith("/"):
         split = message_dict["text"].split()
         # Insert another split with @ to avoid error with /try@mybot
@@ -41,6 +42,7 @@ def parse_audio(message_dict, bot):
 
 
 def parse_photo(message_dict, bot):
+    # For each size of the photo create an object
     photo_array = []
     for p in message_dict["photo"]:
         photo_array.append(Photo(bot, p))

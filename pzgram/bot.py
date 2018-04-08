@@ -115,7 +115,7 @@ class Bot:
                 # Call next func if it setted for that chat.id
                 func = self.next_func.pop(chat.id)
                 call(func, possible_args)
-            else:  # For every message that is not a command
+            else:  # For every message that is not a command or in next_func
                 call(self.processMessage, possible_args)
         elif "edited_message" in update:
             if self.editFunc != nf:

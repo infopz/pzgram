@@ -37,12 +37,12 @@ class CallbackQuery:
 
 
 def create_button(text, data=None, url=None):
-    if data is not None and url is not None:
-        print("Error")
-        # FIXME
+    if (data is not None and url is not None) or (data is None and url is None):
+        raise Exception("You must pass exactly 2 parameter to create_button")
     if data is not None:
         return {"text": text, "callback_data": data}
     else:
+        # if url is not none
         return {"text": text, "url": url}
 
 
