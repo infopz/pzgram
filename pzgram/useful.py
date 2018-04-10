@@ -3,6 +3,11 @@ import time
 import json
 
 
+# https://youtu.be/hrsvRDeIfbo
+# Però tinàm bòta cun forza cunvinta
+# Modena l’è fort la’ns da brisa per vinta!
+
+
 def notafunction(*args, **kwargs):
     """Default functions for some parts of bot"""
     pass

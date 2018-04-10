@@ -82,6 +82,34 @@ class Message:
         else:
             return Message(self.bot, r["message_id"], r)
 
+    def edit_caption(self, caption, parse_mode=None, reply_markup=None):
+        p = {
+            "chat_id": self.chat.id,
+            "message_id": self.id,
+            "caption": caption,
+            "parse_mode": parse_mode,
+            "reply_markup": reply_markup
+        }
+        r = api_request(self.bot, "editMessageCaption", p)
+        # Check if the response is True or Message object
+        if r == True:
+            return True
+        else:
+            return Message(self.bot, r["message_id"], r)
+
+    def edit_reply_markup(self, reply_markup):
+        p = {
+            "chat_id": self.chat.id,
+            "message_id": self.id,
+            "reply_markup": reply_markup
+        }
+        r = api_request(self.bot, "editMessageReplyMarkup", p)
+        # Check if the response is True or Message object
+        if r == True:
+            return True
+        else:
+            return Message(self.bot, r["message_id"], r)
+
     def edit_live(self, latitude, longitude, reply_markup=None):
         p = {
             "chat_id": self.chat.id,
