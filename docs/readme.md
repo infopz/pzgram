@@ -27,7 +27,7 @@ bot.set_commands({"hello": hello})
 bot.run()
 ```
 
-The current version of pzGram (`1.0`) does not support yet Payements and Games.
+The current version of pzGram support all types of messages, from users, groups and channels, but it does not support payments and games yet.
 
 pzGram is an open-source project, created by Giovanni Casari.
 
