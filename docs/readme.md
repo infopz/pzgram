@@ -13,7 +13,7 @@
 * [Objects](https://infopz.github.io/pzgram/objects)
 * [Changelogs](https://infopz.github.io/pzgram/changelogs)
 
-**pzGram** is a Python3 library that allows you to create your Telegram bot focusing on what the bot have to do and not on how the bot works.
+**pzGram** is a Python3 library that allows you to create your Telegram bot focusing on what the bot has to do and not on how the bot works.
 
 ```python
 import pzgram
