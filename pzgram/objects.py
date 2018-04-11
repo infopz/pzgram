@@ -19,24 +19,34 @@ class Message:
 
     def __init__(self, bot, id, message_dict=dict()):
         self.bot = bot
-        # Find the type of this message
-        for t in message_types:
-            if t in message_dict:
-                self.type = t
-                # Call the connected method for parsing that type of message
-                message_dict = message_types[t](message_dict, bot)
-                break
-        # Parse other things
-        message_dict = parse_forward_reply(message_dict, bot)
-        # Add all possbile attributes to message_dict and set to None
-        for i in self.attributes:
-            if i not in message_dict:
-                message_dict[i] = None
-        # Delete attribute from and replace with sender
-        if "from" in message_dict:
-            message_dict["sender"] = User(bot, message_dict["from"]["id"], message_dict["from"])
-            message_dict.pop("from")
-        message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
+        if isinstance(message_dict, dict) and len(message_dict):
+            # If is a dict, parse as usual
+            # Find the type of this message
+            for t in message_types:
+                if t in message_dict:
+                    self.type = t
+                    # Call the connected method for parsing that type of message
+                    message_dict = message_types[t](message_dict, bot)
+                    break
+            # Parse other things
+            message_dict = parse_forward_reply(message_dict, bot)
+            # Add all possbile attributes to message_dict and set to None
+            for i in self.attributes:
+                if i not in message_dict:
+                    message_dict[i] = None
+            # Delete attribute from and replace with sender
+            if "from" in message_dict:
+                message_dict["sender"] = User(bot, message_dict["from"]["id"], message_dict["from"])
+                message_dict.pop("from")
+            message_dict["chat"] = Chat(bot, message_dict["chat"]["id"], message_dict["chat"])
+        elif isinstance(message_dict, Chat):
+            # if is a Chat Object
+            chat = message_dict
+            message_dict = {"chat": chat}
+        elif isinstance(message_dict, int):
+            # if is an Int, create Chat Object
+            chat_id = message_dict
+            message_dict = {"chat": Chat(self.bot, chat_id)}
         # Set Message ID
         message_dict["id"] = id
         # Memorize all attributes
