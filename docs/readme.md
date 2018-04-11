@@ -1,8 +1,5 @@
 # HomePage
 
-
-
-#### Website Index
 * [HomePage](https://infopz.github.io/pzgram/)
 * [Guide](https://infopz.github.io/pzgram/guide0)
   * [Install pzGram](https://infopz.github.io/pzgram/install)
