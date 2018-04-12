@@ -9,14 +9,20 @@ This is personal, so don't publish it anywhere unless you desire misery and trag
 ## Write the program
 In order to use `pzgram` on your python program, you need to import it.
 
-```import pzgram```
+```python
+import pzgram
+```
 
 After this, you have to create the `Bot` object, passing it the BotKey as a string. This will create an object, rappresenting your bot in all of his aspect. For more information, please visit [this page](https://infopz.github.io/pzgram/objects)
 
-```bot = pzgram.Bot("BOTKEY") ```
+```python
+bot = pzgram.Bot("BOTKEY")
+```
 
 Now your bot is ready to be runned, as the last line of your program, write
 
-``` bot.run()```
+```python
+bot.run()
+```
 
 This will start your bot.
