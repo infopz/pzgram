@@ -4,7 +4,7 @@ You can install `pzgram` in 2 ways: via `pip` or via `GitHub`
 
 ## Pip
 
-To install pzgram via pip, you have to have python3 and pip installed on your system.
+To install pzgram via pip, you need to have [Python3](https://www.python.org/downloads/) and Pip installed on your system.
 
 To download pzgram you have to write
 ```
