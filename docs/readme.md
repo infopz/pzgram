@@ -3,7 +3,7 @@
 * [HomePage](https://infopz.github.io/pzgram/)
 * [Guide](https://infopz.github.io/pzgram/guide0)
   * [Install pzGram](https://infopz.github.io/pzgram/install)
-  * [Create your Bot](https://infopz.gihub.io/pzgram/guide1)
+  * [Create your Bot](https://infopz.github.io/pzgram/guide1)
   * [Add Commands](https://infopz.github.io/pzgram/guide2)
   * [Manage Messages](https://infopz.github.io/pzgram/guide3)
   * [Timers](https://infopz.github.io/pzgram/guide4)
