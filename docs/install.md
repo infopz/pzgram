@@ -15,4 +15,11 @@ This install the latest version available on pip.
 
 ## GitHub
 
-To install pzgram via GitHub, you have to go to the [main page](https://github.com/infopz/pzgram) of the project, after, download it via the green button, extract the .zip file, and move the `pzgram` folder inside the downloaded folder to the folder of your project
+To install pzgram using GitHub, you have to follow this steps:
+1. Go to the [main page](https://github.com/infopz/pzgram) of the project
+2. Download `pzgram` via the green button
+3. Extract the .zip file
+4. Take the `pzgram` folder inside the downloaded folder
+5. Move it inside the folder of your project
+
+The GitHub version of pzgram may have some issues or bugs
