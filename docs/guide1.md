@@ -24,3 +24,7 @@ Write the following code as last line of your program to start it.
 ```python
 bot.run()
 ```
+
+Follow the instruction on the next page to add features to your bot.
+
+<div style:"float: right;"><a href="https://infopz.github.io/pzgram.guide2" style="text-decoration: none">Prossima Pagina</a></div>
