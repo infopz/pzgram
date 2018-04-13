@@ -23,3 +23,5 @@ To install pzgram using GitHub, you have to follow this steps:
 5. Move it inside the folder of your project
 
 The GitHub version of pzgram may have some issues or bugs
+
+<div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram/guide1" style="text-decoration: none;color: #252525;">Next Page</a></div>
