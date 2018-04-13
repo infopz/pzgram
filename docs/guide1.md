@@ -27,4 +27,4 @@ bot.run()
 
 Follow the instruction on the next page to add features to your bot.
 
-<div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram.guide2" style="text-decoration: none;color: #252525;">Next Page</a></div>
+<div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram/guide2" style="text-decoration: none;color: #252525;">Next Page</a></div>
