@@ -39,3 +39,5 @@ For more information contact me:
 **Supported Version:** Python 3.x
 
 **License:** Apache 2.0
+
+<div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram/guide0" style="text-decoration: none;color: #252525;">Next Page</a></div>
