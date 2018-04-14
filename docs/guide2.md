@@ -34,8 +34,11 @@ You can write as function parameters the ones listed below:
 
 ## Set Next
 
-Usually, when a user write a command, the bot ask him some additional information, to catch these reply message, with `pzgram`, you can use the `set_next` method of the bot.
-This function requires 2 parameters: the Chat object of that chat and the name of the function that receive the next message.
+Usually, when a user writes a command, the bot ask him for some additional information, to catch these reply message, with `pzgram`, you can use the `set_next` method of the bot.
+
+When the bot'll receive a message from that chat, it will be sent to a particular function.
+
+`set_next` requires 2 parameters: the Chat object of that chat and the name of the function that receive the next message.
 
 Example:
 
@@ -52,16 +55,19 @@ bot.set_commands({"start": start_command})
 bot.run()
 ```
 In this simple example, when an user wrote `/start`, the bot reply asking for his phone number. After, with the method
-`bot.set_next`, the bot knows that he have to pass the next message received from that chat, to the function `receive_number`.
+`bot.set_next`, the bot knows that he have to send the next message received from that chat, to the function `receive_number`.
 
 When the user write his phone number and send the message to the bot, the message is caught and send to function `receive_number` that print it.
 
+All other messages received will be managed as normal message ([see the next page](https://infopz.github.io/pzgram/guide3))
+
 ## /start and /help
 
-`pzgram` contains the default reply function to answer to command `/start` e `/help`
+`pzgram` contains a default reply function to answer to command `/start` e `/help`
 
 These default replies can be overwritten by passing a function to `bot.set_commands` as a normal command.
 
 The default `/help` replying message contains a list of all commands that the bot has configured.
+If you want to add more information about a command, you can write it as [docstring](http://www.pythonforbeginners.com/basics/python-docstrings) and it will appear in the reply message of `/help`
 
 <div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram/guide3" style="text-decoration: none;color: #252525;">Next Page</a></div>
