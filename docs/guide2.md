@@ -1,5 +1,4 @@
 # Add Commands
-<br>
 
 All telegram bots work with a list of commands.
 
