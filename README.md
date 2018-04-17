@@ -1,4 +1,6 @@
 # pzgram
+[![Downloads](http://pepy.tech/badge/pzgram)](http://pepy.tech/count/pzgram)
+
 A pz-way to create your Telegram Bot
 
 ```python
