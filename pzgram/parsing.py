@@ -1,9 +1,13 @@
 import collections
+from typing import TYPE_CHECKING
 
 from .media_objects import *
 
+if TYPE_CHECKING:
+    from .bot import Bot
 
-def parse_forward_reply(message_dict, bot):
+
+def parse_forward_reply(message_dict: dict, bot: "Bot") -> dict:
     if "forward_from" in message_dict:
         from .objects import User
         message_dict["forward_from"] = \
@@ -19,12 +23,12 @@ def parse_forward_reply(message_dict, bot):
     return message_dict
 
 
-def df(message_dict, bot):
+def df(message_dict: dict, bot: "Bot"):
     # Default Parsing Func, used when no actions are required, or that type is not supported yet
     return message_dict
 
 
-def parse_text(message_dict, bot):
+def parse_text(message_dict: dict, bot: "Bot") -> dict:
     # Check if text message is a command
     if message_dict["text"].startswith("/"):
         split = message_dict["text"].split()
@@ -36,12 +40,12 @@ def parse_text(message_dict, bot):
     return message_dict
 
 
-def parse_audio(message_dict, bot):
+def parse_audio(message_dict: dict, bot: "Bot") -> dict:
     message_dict["audio"] = Audio(bot, message_dict["audio"])
     return message_dict
 
 
-def parse_photo(message_dict, bot):
+def parse_photo(message_dict: dict, bot: "Bot") -> dict:
     # For each size of the photo create an object
     photo_array = []
     for p in message_dict["photo"]:
@@ -50,48 +54,48 @@ def parse_photo(message_dict, bot):
     return message_dict
 
 
-def parse_voice(message_dict, bot):
+def parse_voice(message_dict: dict, bot: "Bot") -> dict:
     message_dict["voice"] = Voice(bot, message_dict["voice"])
     return message_dict
 
 
-def parse_document(message_dict, bot):
+def parse_document(message_dict: dict, bot: "Bot") -> dict:
     message_dict["document"] = Document(bot, message_dict["document"])
     return message_dict
 
 
-def parse_video(message_dict, bot):
+def parse_video(message_dict: dict, bot: "Bot") -> dict:
     message_dict["video"] = Video(bot, message_dict["video"])
     return message_dict
 
 
-def parse_contact(message_dict, bot):
+def parse_contact(message_dict: dict, bot: "Bot") -> dict:
     message_dict["contact"] = Contact(bot, message_dict["contact"])
     return message_dict
 
 
-def parse_videonote(message_dict, bot):
+def parse_videonote(message_dict: dict, bot: "Bot") -> dict:
     message_dict["video_note"] = VideoNote(bot, message_dict["video_note"])
     return message_dict
 
 
-def parse_location(message_dict, bot):
+def parse_location(message_dict: dict, bot: "Bot") -> dict:
     message_dict["location"] = Location(bot, message_dict["location"])
     return message_dict
 
 
-def parse_venue(message_dict, bot):
+def parse_venue(message_dict: dict, bot: "Bot") -> dict:
     message_dict["venue"] = Venue(bot, message_dict["venue"])
     message_dict["location"] = message_dict["venue"].location
     return message_dict
 
 
-def parse_sticker(message_dict, bot):
+def parse_sticker(message_dict: dict, bot: "Bot") -> dict:
     message_dict["sticker"] = Sticker(bot, message_dict["sticker"])
     return message_dict
 
 
-def parse_new_user(message_dict, bot):
+def parse_new_user(message_dict: dict, bot: "Bot") -> dict:
     from .objects import User
     new_users = []
     # Convert all dict in User object
@@ -104,7 +108,7 @@ def parse_new_user(message_dict, bot):
     return message_dict
 
 
-def parse_left_user(message_dict, bot):
+def parse_left_user(message_dict: dict, bot: "Bot") -> dict:
     from .objects import User
     message_dict["left_chat_member"] = \
         User(bot, message_dict["left_chat_member"]["id"], message_dict["left_chat_member"])
@@ -112,7 +116,7 @@ def parse_left_user(message_dict, bot):
     return message_dict
 
 
-def parse_new_chat_photo(message_dict, bot):
+def parse_new_chat_photo(message_dict: dict, bot: "Bot") -> dict:
     photos = []
     for p in message_dict["new_chat_photo"]:
         photos.append(Photo(bot, p))
@@ -120,7 +124,7 @@ def parse_new_chat_photo(message_dict, bot):
     return message_dict
 
 
-def parse_pinned_message(message_dict, bot):
+def parse_pinned_message(message_dict: dict, bot: "Bot") -> dict:
     from .objects import Message
     message_dict["pinned_message"] = \
         Message(bot, message_dict["pinned_message"]["message_id"], message_dict["pinned_message"])

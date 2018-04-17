@@ -9,7 +9,7 @@ from .inline import CallbackQuery
 
 
 class Bot:
-    def __init__(self, bot_key):
+    def __init__(self, bot_key: str):
         self.key = bot_key
         self.offset = 0
         # Bot Informations
@@ -35,7 +35,7 @@ class Bot:
         self.next_query = dict()
         print(time_for_log() + "Bot Created")
 
-    def run(self):
+    def run(self) -> None:
         # Check bot key and receive bot information
         try:
             bot_data = api_request(self, 'getMe')
@@ -60,14 +60,14 @@ class Bot:
             print(time_for_log() + "Shutdown...")
             call(self.endFunc, {"bot": self})
 
-    def run_bot(self):
+    def run_bot(self) -> None:
         while True:
             updates = self.get_updates()
             for i in updates:
                 # Create a thread for each update
                 threading.Thread(target=self.run_update, args=(i,), daemon=True).start()
 
-    def get_updates(self):
+    def get_updates(self) -> dict:
         while True:
             param = {
                 "offset": self.offset,
@@ -93,7 +93,7 @@ class Bot:
                 self.offset = updates[-1]["update_id"] + 1
                 return updates
 
-    def run_update(self, update):
+    def run_update(self, update: dict) -> None:
         # If the update contains a Message
         if "message" in update:
             message = Message(self, update["message"]["message_id"], update["message"])
@@ -150,16 +150,16 @@ class Bot:
             elif self.callBackFunc != nf:
                 call(self.callBackFunc, possible_args)
 
-    def set_commands(self, command_dict):
+    def set_commands(self, command_dict: dict) -> None:
         # Used to avoid overwring of default start and help if not included
         for i in command_dict:
             self.commands[i] = command_dict[i]
 
-    def set_query(self, query_dict):
+    def set_query(self, query_dict: dict) -> None:
         for i in query_dict:
             self.query[i] = query_dict[i]
 
-    def run_timer(self, timer_function, delay):
+    def run_timer(self, timer_function: "function", delay: int) -> None:
         while True:
             try:
                 timer_function()
@@ -168,5 +168,5 @@ class Bot:
                 traceback.print_exc()
             time.sleep(calc_new_delay(delay))
 
-    def set_next(self, chat, func):
+    def set_next(self, chat: Chat, func: "function") -> None:
         self.next_func[chat.id] = func
