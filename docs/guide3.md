@@ -33,4 +33,20 @@ When a new message arrives, it is sent to the function connected to `processMess
 
 This became useful with [Customized Keyboard](https://infopz.github.io/pzgram/guide5)
 
+## Start & End Function
+
+`pzgram` allows you to connect a function that will be called at the start or at the end of the bot running.
+
+`startFunc` is the name of the attribute of the bot object, and as the `processMessage` function, if you want to connect a function to it, you have to write `bot.startFunc = your_function`. It will be called before the bot start checking for new messages.
+
+`endFunc` is the same, but it will be called when the bot stopping itself, so when the user quit the program.
+
+## Edited Messages
+
+`editFunc` is a function that permits you to manage the edited messages.
+
+As the other functions in this page, it can receive all parameters that command functions receives exept for `args`.
+
+To connect a function, you have to write `bot.editFunc = your_function`
+
 <div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram/guide4" style="text-decoration: none;color: #252525;">Next Page</a></div>
