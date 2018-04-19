@@ -105,12 +105,14 @@ class Bot:
             if call(self.processAll, possible_args):
                 return
             if message.type == "command":
+                if chat.id in self.next_func:
+                    # Remove the set_next if arrives a new command
+                    self.next_func.pop(chat.id, None)
                 if message.command in self.commands:
                     call(self.commands[message.command], possible_args)
                 else:
                     # If command is not in list, send message with /help
                     call(command_not_found, possible_args)
-                    return
             elif chat.id in self.next_func:
                 # Call next func if it setted for that chat.id
                 func = self.next_func.pop(chat.id)
