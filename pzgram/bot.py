@@ -143,8 +143,8 @@ class Bot:
         elif "callback_query" in update:
             # Parse CallbackQuery
             query = CallbackQuery(self, update["callback_query"])
-            possible_args = {"query": query, "message": query.message,
-                             "sender": query.sender, "data": query.data}
+            possible_args = {"query": query, "message": query.message, "sender": query.sender,
+                             "data": query.data, "chat": query.message.chat}
             # If is in the query dict
             if query.data is not None and query.data in self.query:
                 call(self.query[query.data], possible_args)
