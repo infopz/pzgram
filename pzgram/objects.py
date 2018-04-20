@@ -224,7 +224,7 @@ class Chat:
         chat = api_request(self.bot, "getChat", p)
         return Chat(self.bot, chat["id"], chat)
 
-    def send(self, text: str, parse_mode: str="markdown", preview: bool=True, notification: bool=True,
+    def send(self, text: str, parse_mode: str="", preview: bool=True, notification: bool=True,
              reply_to: bool=None, reply_markup: str=None) -> Message:
         param = {
             "chat_id": self.id,

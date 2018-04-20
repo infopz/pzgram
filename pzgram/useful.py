@@ -30,8 +30,8 @@ def call(f: 'function', args: dict):
 
 def default_start(chat: "Chat", message: "Message", bot: "Bot") -> None:
     """Default function for /start command"""
-    chat.send("Hi *" + message.sender.first_name + "*, Welcome on @" + bot.username +
-              "\nUse /help to view all commands")
+    chat.send("Hi <b>" + message.sender.first_name + "</b>, Welcome on @" + bot.username +
+              "\nUse /help to view all commands", parse_mode="html")
 
 
 def default_help(chat: "Chat", bot: "Bot") -> None:
