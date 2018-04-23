@@ -225,14 +225,14 @@ class Chat:
         return Chat(self.bot, chat["id"], chat)
 
     def send(self, text: str, parse_mode: str="", preview: bool=True, notification: bool=True,
-             reply_to: bool=None, reply_markup: str=None) -> Message:
+             reply_id: Union[str, int] = None, reply_markup: str=None) -> Message:
         param = {
             "chat_id": self.id,
             "text": text,
             "parse_mode": parse_mode,
             "disable_web_page_preview": not preview,
             "disable_notification": notification,
-            "reply_to_message_id": reply_to,
+            "reply_to_message_id": reply_id,
             "reply_markup": reply_markup
         }
         r = api_request(self.bot, "sendMessage", param)
