@@ -1,5 +1,6 @@
 import requests
 from typing import Union, TYPE_CHECKING
+import json
 
 from .exceptions import *
 
@@ -15,7 +16,10 @@ def api_request(bot: "Bot", method: str, param: dict=None, files: dict=None, tim
         raise
     except:
         raise TelegramConnectionError("Error with the request for the method " + method)
-    data = data.json()
+    try:
+        data = data.json()
+    except json.decoder.JSONDecodeError:
+        raise ApiError("Error returned from telegram: \n" + data.text)
     if not data['ok']:
         raise ApiError("Error returned from telegram: " + str(data["error_code"]) + " - " + data["description"])
     return data['result']
