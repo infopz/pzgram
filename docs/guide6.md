@@ -27,3 +27,5 @@ bot.channelPostFunc = forward_post
 ```
 
 To manage channels, you can use the same functions explained before for groups.
+
+<div style="float: right;background-color: #fc0;padding: 6px;border-radius: 7px;"><a href="https://infopz.github.io/pzgram/guide7" style="text-decoration: none;color: #252525;">Next Page</a></div>
