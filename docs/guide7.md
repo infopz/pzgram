@@ -29,7 +29,7 @@ an object that you have to pass as `reply_markup` in methods like `chat.send`.
 For example:
 ```python
 k = [[button1, button2]]
-keyboard = pzgram.create_keyboard(k)
+keyboard = pzgram.create_inline(k)
 chat.send("Press a Button!", reply_markup=keyboard)
 ```
 
