@@ -12,7 +12,7 @@ class Bot:
     def __init__(self, bot_key: str):
         self.key = bot_key
         self.offset = 0
-        # Bot Informations
+        # Bot Information
         self.id = None
         self.username = None
         self.name = None
@@ -156,6 +156,9 @@ class Bot:
         # Used to avoid overwring of default start and help if not included
         for i in command_dict:
             self.commands[i] = command_dict[i]
+
+    def set_timers(self, timer_dict: dict) -> None:
+        self.timers = timer_dict
 
     def set_query(self, query_dict: dict) -> None:
         for i in query_dict:
