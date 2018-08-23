@@ -31,6 +31,8 @@ The current version of pzGram support all types of messages, from users, groups 
 
 pzGram is an open-source project, created by Giovanni Casari.
 
+Developers' Telegram Group [here](https://t.me/joinchat/ATdWXRIuqRIapZr1umlrbg)
+
 For more information contact me:
 * Telegram: @infopz
 * Email: casari.giovanni@gmail.com
