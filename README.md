@@ -19,7 +19,7 @@ pzgram is a python library that allows you to create your personal Telegram bot,
 
 English Documentaton [here](https://infopz.github.io/pzgram/)
 
-Telegram Group [here](https://t.me/joinchat/ATdWXRIuqRIapZr1umlrbg)
+Developers' Telegram Group [here](https://t.me/joinchat/ATdWXRIuqRIapZr1umlrbg)
 
 For more information contact me:
 * telegram: @infopz
