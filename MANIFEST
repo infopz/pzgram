@@ -5,6 +5,7 @@ pzgram/__init__.py
 pzgram/api.py
 pzgram/bot.py
 pzgram/exceptions.py
+pzgram/inline.py
 pzgram/media_objects.py
 pzgram/objects.py
 pzgram/parsing.py
