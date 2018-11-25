@@ -24,7 +24,8 @@ Developers' Telegram Group [here](https://t.me/joinchat/ATdWXRIuqRIapZr1umlrbg)
 For more information contact me:
 * telegram: @infopz
 * email: casari.giovanni@gmail.com
-* website: [infopz.hopto.org](http://infopz.hopto.org)
+* Project Website: [infopz.github.io/pzgram](https://infopz.github.io/pzgram/)
+* My website: [infopz.hopto.org](http://infopz.hopto.org/)
 
 **Supported Version**: Python 3.x
 
