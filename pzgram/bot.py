@@ -25,6 +25,7 @@ class Bot:
         self.channelPostFunc = nf
         self.editChannelPostFunc = nf
         self.callBackFunc = nf
+        self.manageExceptions = default_manage_exception
         # Bot Settings
         self.APITimeout = 100
         # Others
@@ -83,7 +84,7 @@ class Bot:
                 time.sleep(5)
                 continue
             except ApiError:
-                # Api Error if another client is getting update
+                # With the method getUpdates, if Api Error is raised means that another client is getting updates
                 print(time_for_log() + "ApiError - Another program is getting updates for this bot. Retry in 5s")
                 time.sleep(5)
                 continue
@@ -94,7 +95,14 @@ class Bot:
                 return updates
 
     def run_update(self, update: dict) -> None:
-        # If the update contains a Message
+        # Run the real run_update and prevents exceptions
+        try:
+            self.run_update_real(update)
+        except Exception as e:
+            self.manageExceptions(e)
+
+    def run_update_real(self, update: dict) -> None:
+        # For every type of message, manage them
         if "message" in update:
             message = Message(self, update["message"]["message_id"], update["message"])
             chat = message.chat
@@ -168,9 +176,14 @@ class Bot:
         while True:
             try:
                 timer_function()
-            except:
-                print("")
-                traceback.print_exc()
+            except Exception as e:
+                # Call the manageExceptions method, but prevents it from stopping
+                # the while, converting the raising in printing
+                try:
+                    self.manageExceptions(e)
+                except:
+                    print("")
+                    traceback.print_exc()
             time.sleep(calc_new_delay(delay))
 
     def set_next(self, chat: Chat, func: "function") -> None:

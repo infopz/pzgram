@@ -13,12 +13,12 @@ if TYPE_CHECKING:
 
 
 def notafunction(*args, **kwargs):
-    """Default functions for some parts of bot"""
+    """Default function for some parts of bot"""
     pass
 
 
 def call(f: 'function', args: dict):
-    """Function that call a function passing him the requested args"""
+    """Function that calls a function passing him the requested args"""
     # Get Function Args
     f_args = inspect.getfullargspec(f).args
     to_pass = []
@@ -35,7 +35,7 @@ def default_start(chat: "Chat", message: "Message", bot: "Bot") -> None:
 
 
 def default_help(chat: "Chat", bot: "Bot") -> None:
-    """Default funcion for /help command"""
+    """Default function for /help command"""
     text = ""
     for i in bot.commands:
         if i != "help" and i != "start":
@@ -90,3 +90,10 @@ def file_name(path: str) -> str:
             return path[i+1:]
     else:
         return path
+
+
+def default_manage_exception(e: Exception) -> None:
+    """If not changed, this raise the exceptions encounter in run_update"""
+    print("")
+    raise e
+
