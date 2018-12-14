@@ -1,4 +1,5 @@
-# pzgram
+<img src="http://infopz.hopto.org/pzGramNew2.png" alt="pzGram Logo" width="600">
+
 [![Downloads](http://pepy.tech/badge/pzgram)](http://pepy.tech/count/pzgram)
 
 A pz-way to create your Telegram Bot
