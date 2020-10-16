@@ -1,4 +1,4 @@
-<img src="http://infopz.hopto.org/pzGramNew2.png" alt="pzGram Logo" width="600">
+<img src="https://i.postimg.cc/j2J6RK9G/pz-Gram-New2.png" alt="pzGram Logo" width="600">
 
 [![Downloads](http://pepy.tech/badge/pzgram)](http://pepy.tech/count/pzgram)
 
